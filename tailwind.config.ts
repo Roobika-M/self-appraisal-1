@@ -23,6 +23,11 @@ export default {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
         },
+        academic: {
+          DEFAULT: "hsl(var(--academic))",
+          foreground: "hsl(var(--academic-foreground))",
+          hover: "hsl(var(--academic-hover))",
+        },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
@@ -30,6 +35,18 @@ export default {
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
+        },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
+        processing: {
+          DEFAULT: "hsl(var(--processing))",
+          foreground: "hsl(var(--processing-foreground))",
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",
