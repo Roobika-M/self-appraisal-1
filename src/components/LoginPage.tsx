@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -5,9 +6,28 @@ import { Button } from "@/components/ui/button";
 import { GraduationCap } from "lucide-react";
 
 const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
-  const handleSubmit = (e: React.FormEvent) => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onLogin();
+    setError("");
+    try {
+      const res = await fetch("http://localhost:5000/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ username, password }).toString(),
+        credentials: "include",
+      });
+      if (res.redirected || res.ok) {
+        onLogin();
+      } else {
+        setError("Login failed. Please check your credentials.");
+      }
+    } catch (err) {
+      setError("Unable to connect to server.");
+    }
   };
 
   return (
@@ -46,6 +66,9 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
                   type="text"
                   placeholder="Enter your username"
                   className="bg-muted/50"
+                  value={username}
+                  onChange={e => setUsername(e.target.value)}
+                  required
                 />
               </div>
               <div className="space-y-2">
@@ -55,8 +78,12 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
                   type="password"
                   placeholder="Enter your password"
                   className="bg-muted/50"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
                 />
               </div>
+              {error && <div className="text-red-500 text-sm">{error}</div>}
               <Button type="submit" className="w-full" variant="academic">
                 Sign In
               </Button>
@@ -65,8 +92,7 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
             {/* Demo Credentials */}
             <div className="mt-6 p-3 bg-muted rounded-lg text-sm space-y-1">
               <p className="font-medium text-foreground">Demo Credentials:</p>
-              <p className="text-muted-foreground">Username: admin, Password: password</p>
-              <p className="text-muted-foreground">Username: officer, Password: college123</p>
+              <p className="text-muted-foreground">Username: admin, Password: admin</p>
             </div>
           </CardContent>
         </Card>

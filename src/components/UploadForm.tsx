@@ -19,7 +19,8 @@ const UploadForm = ({ onComplete, onCancel }: UploadFormProps) => {
     email: "",
     academicYear: "2024-25"
   });
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedExcelFile, setSelectedExcelFile] = useState<File | null>(null);
+  const [selectedWordFile, setSelectedWordFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,22 +44,55 @@ const UploadForm = ({ onComplete, onCancel }: UploadFormProps) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+    // Only handle Excel file drop here
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setSelectedFile(e.dataTransfer.files[0]);
+      setSelectedExcelFile(e.dataTransfer.files[0]);
     }
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleExcelFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
+      setSelectedExcelFile(e.target.files[0]);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleWordFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedWordFile(e.target.files[0]);
+    }
+  };
+
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would upload and process the file
-    onComplete({ ...formData, file: selectedFile });
+    setError("");
+    if (!selectedExcelFile || !selectedWordFile) {
+      setError("Please select both Excel and Word template files.");
+      return;
+    }
+    try {
+      const data = new FormData();
+      data.append("name", formData.facultyName);
+      data.append("designation", formData.designation);
+      data.append("department", formData.department);
+      data.append("employee_id", formData.employeeId);
+      data.append("excel_file", selectedExcelFile);
+      data.append("word_file", selectedWordFile);
+
+      const res = await fetch("http://localhost:5000/upload", {
+        method: "POST",
+        body: data,
+        credentials: "include",
+      });
+      if (res.redirected || res.ok) {
+        onComplete({ ...formData, excelFile: selectedExcelFile, wordFile: selectedWordFile });
+      } else {
+        setError("Upload failed. Please check your files and try again.");
+      }
+    } catch (err) {
+      setError("Unable to connect to server.");
+    }
   };
 
   return (
@@ -167,11 +201,11 @@ const UploadForm = ({ onComplete, onCancel }: UploadFormProps) => {
                     <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center">
                       <FileText className="w-6 h-6 text-muted-foreground" />
                     </div>
-                    {selectedFile ? (
+                    {selectedExcelFile ? (
                       <div className="space-y-2">
-                        <p className="font-medium text-foreground">{selectedFile.name}</p>
+                        <p className="font-medium text-foreground">{selectedExcelFile.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                          {(selectedExcelFile.size / 1024 / 1024).toFixed(2)} MB
                         </p>
                       </div>
                     ) : (
@@ -183,18 +217,43 @@ const UploadForm = ({ onComplete, onCancel }: UploadFormProps) => {
                     <input
                       type="file"
                       accept=".xlsx,.xls,.csv"
-                      onChange={handleFileSelect}
+                      onChange={handleExcelFileSelect}
                       className="hidden"
-                      id="file-upload"
+                      id="excel-file-upload"
                     />
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => document.getElementById("file-upload")?.click()}
+                      onClick={() => document.getElementById("excel-file-upload")?.click()}
                     >
                       <Upload className="w-4 h-4 mr-2" />
-                      Choose File
+                      Choose Excel File
                     </Button>
+                {/* Word Template Upload Section */}
+                <div className="mt-6">
+                  <Label htmlFor="word-file-upload">Word Template File <span className="text-destructive">*</span></Label>
+                  <div className="flex items-center gap-4 mt-2">
+                    <input
+                      type="file"
+                      accept=".docx"
+                      onChange={handleWordFileSelect}
+                      className="hidden"
+                      id="word-file-upload"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => document.getElementById("word-file-upload")?.click()}
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      Choose Word File
+                    </Button>
+                    {selectedWordFile && (
+                      <span className="ml-2 text-sm text-foreground">{selectedWordFile.name}</span>
+                    )}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">Supported format: .docx</div>
+                </div>
                   </div>
                 </div>
 
@@ -217,14 +276,17 @@ const UploadForm = ({ onComplete, onCancel }: UploadFormProps) => {
             </Card>
 
             {/* Action Buttons */}
-            <div className="flex justify-end gap-3">
-              <Button type="button" variant="outline" onClick={onCancel}>
-                Cancel
-              </Button>
-              <Button type="submit" variant="academic" disabled={!selectedFile}>
-                <Upload className="w-4 h-4 mr-2" />
-                Upload & Process
-              </Button>
+            <div className="flex flex-col gap-2">
+              {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
+              <div className="flex justify-end gap-3">
+                <Button type="button" variant="outline" onClick={onCancel}>
+                  Cancel
+                </Button>
+                <Button type="submit" variant="academic" disabled={!selectedExcelFile || !selectedWordFile}>
+                  <Upload className="w-4 h-4 mr-2" />
+                  Upload & Process
+                </Button>
+              </div>
             </div>
           </form>
         </CardContent>

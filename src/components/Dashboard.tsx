@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -25,25 +25,49 @@ interface FacultyRecord {
 }
 
 const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
-  const [currentView, setCurrentView] = useState<"dashboard" | "upload">("dashboard");
-  const [facultyRecords, setFacultyRecords] = useState<FacultyRecord[]>([
-    {
-      id: "1",
-      name: "hhh",
-      employeeId: "nj",
-      department: "Assistant Professor",
-      designation: "Assistant Professor",
-      academicYear: "2024-25",
-      uploadDate: "9/6/2025",
-      status: "completed",
-      scores: {
-        teaching: 70,
-        research: 73,
-        service: 71,
-        overall: 71
+  const [currentView, setCurrentView] = useState<"dashboard" | "upload" | "results">("dashboard");
+  const [facultyRecords, setFacultyRecords] = useState<FacultyRecord[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  // Fetch latest scores/details from backend on dashboard load
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch("http://localhost:5000/download_path", {
+          method: "GET",
+          credentials: "include",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          // Map backend data to FacultyRecord format
+          const record: FacultyRecord = {
+            id: "1",
+            name: data.name || "",
+            employeeId: data.empid || "",
+            department: data.dept || "",
+            designation: data.designation || "",
+            academicYear: "2024-25",
+            uploadDate: new Date().toLocaleDateString(),
+            status: "completed",
+            scores: {
+              teaching: data.academics || 0,
+              research: data.research || 0,
+              service: data.selfm || 0,
+              overall: (data.academics || 0) + (data.research || 0) + (data.selfm || 0) + (data.mentor || 0)
+            }
+          };
+          setFacultyRecords([record]);
+        } else {
+          setFacultyRecords([]);
+        }
+      } catch {
+        setFacultyRecords([]);
       }
-    }
-  ]);
+      setLoading(false);
+    };
+    fetchData();
+  }, []);
+  const [latestScores, setLatestScores] = useState<any | null>(null);
 
   const stats = {
     totalUploads: facultyRecords.length,
@@ -62,9 +86,25 @@ const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
     setCurrentView("dashboard");
   };
 
-  const handleUploadComplete = (data: any) => {
-    // In a real app, this would process the upload
-    setCurrentView("dashboard");
+  const handleUploadComplete = async (data: any) => {
+    // After upload, fetch scores from backend and show results page
+    try {
+      const res = await fetch("http://localhost:5000/download_path", {
+        method: "GET",
+        credentials: "include",
+      });
+      if (res.ok) {
+        const scores = await res.json();
+        setLatestScores(scores);
+        setCurrentView("results");
+      } else {
+        setLatestScores(null);
+        setCurrentView("dashboard");
+      }
+    } catch {
+      setLatestScores(null);
+      setCurrentView("dashboard");
+    }
   };
 
   if (currentView === "upload") {
@@ -79,10 +119,81 @@ const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
             </Button>
             <div>
               <h1 className="text-2xl font-semibold text-foreground">Upload Faculty Appraisal</h1>
-              <p className="text-muted-foreground">Upload Excel file with faculty data</p>
+              <p className="text-muted-foreground">Upload Excel and Word template files</p>
             </div>
           </div>
           <UploadForm onComplete={handleUploadComplete} onCancel={handleBackToDashboard} />
+        </div>
+      </div>
+    );
+  }
+
+  if (currentView === "results" && latestScores) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header onLogout={onLogout} />
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-6">
+            <h1 className="text-2xl font-semibold text-foreground">Faculty Appraisal Results</h1>
+            <p className="text-muted-foreground">Scores for {latestScores.name}</p>
+          </div>
+          <div className="grid grid-cols-2 gap-6 mb-8">
+            <StatCard title="Research" value={latestScores.research} icon={BarChart3} />
+            <StatCard title="Self" value={latestScores.selfm} icon={BarChart3} />
+            <StatCard title="Mentor" value={latestScores.mentor} icon={BarChart3} />
+            <StatCard title="Academics" value={latestScores.academics} icon={BarChart3} />
+          </div>
+          <div className="mb-8">
+            <div className="flex gap-4">
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  const res = await fetch("http://localhost:5000/download/pdf", {
+                    method: "GET",
+                    credentials: "include",
+                  });
+                  if (res.ok) {
+                    const blob = await res.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "filled_template.pdf";
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                  }
+                }}
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Download PDF
+              </Button>
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  const res = await fetch("http://localhost:5000/download/docx", {
+                    method: "GET",
+                    credentials: "include",
+                  });
+                  if (res.ok) {
+                    const blob = await res.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "filled_template.docx";
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                  }
+                }}
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Download Word
+              </Button>
+              <Button variant="ghost" onClick={handleBackToDashboard}>
+                Back to Dashboard
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -133,7 +244,9 @@ const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
             </div>
           </CardHeader>
           <CardContent>
-            {facultyRecords.length === 0 ? (
+            {loading ? (
+              <div className="text-center py-12">Loading...</div>
+            ) : facultyRecords.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center mx-auto mb-4">
                   <Upload className="w-8 h-8 text-muted-foreground" />
@@ -158,49 +271,77 @@ const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
                           <Badge variant={record.status === "completed" ? "default" : "secondary"}>
                             {record.status === "completed" ? "Completed" : "Processing"}
                           </Badge>
-                          {record.status === "completed" && (
-                            <Badge variant="outline" className="text-academic border-academic">
-                              B+
-                            </Badge>
-                          )}
                         </div>
                         <p className="text-sm text-muted-foreground">
                           ID: {record.employeeId} • {record.designation} • {record.academicYear} • {record.uploadDate}
                         </p>
                       </div>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
-                          <Eye className="w-4 h-4 mr-1" />
-                          View Results
-                        </Button>
-                        <Button variant="outline" size="sm">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={async () => {
+                            const res = await fetch("http://localhost:5000/download/pdf", {
+                              method: "GET",
+                              credentials: "include",
+                            });
+                            if (res.ok) {
+                              const blob = await res.blob();
+                              const url = window.URL.createObjectURL(blob);
+                              const a = document.createElement("a");
+                              a.href = url;
+                              a.download = "filled_template.pdf";
+                              document.body.appendChild(a);
+                              a.click();
+                              a.remove();
+                            }
+                          }}
+                        >
                           <Download className="w-4 h-4 mr-1" />
-                          Download
+                          Download PDF
                         </Button>
-                        <Button variant="outline" size="sm">
-                          <Trash2 className="w-4 h-4 mr-1" />
-                          Delete
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={async () => {
+                            const res = await fetch("http://localhost:5000/download/docx", {
+                              method: "GET",
+                              credentials: "include",
+                            });
+                            if (res.ok) {
+                              const blob = await res.blob();
+                              const url = window.URL.createObjectURL(blob);
+                              const a = document.createElement("a");
+                              a.href = url;
+                              a.download = "filled_template.docx";
+                              document.body.appendChild(a);
+                              a.click();
+                              a.remove();
+                            }
+                          }}
+                        >
+                          <Download className="w-4 h-4 mr-1" />
+                          Download Word
                         </Button>
                       </div>
                     </div>
-                    
                     {record.status === "completed" && (
                       <div className="grid grid-cols-4 gap-4 pt-2 border-t">
                         <div>
-                          <p className="text-sm text-muted-foreground">Teaching</p>
-                          <p className="font-medium">{record.scores.teaching}%</p>
+                          <p className="text-sm text-muted-foreground">Academics</p>
+                          <p className="font-medium">{record.scores.teaching}</p>
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">Research</p>
-                          <p className="font-medium">{record.scores.research}%</p>
+                          <p className="font-medium">{record.scores.research}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Service</p>
-                          <p className="font-medium">{record.scores.service}%</p>
+                          <p className="text-sm text-muted-foreground">Self</p>
+                          <p className="font-medium">{record.scores.service}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Overall</p>
-                          <p className="font-medium">{record.scores.overall}%</p>
+                          <p className="text-sm text-muted-foreground">Mentor</p>
+                          <p className="font-medium">{record.scores.overall}</p>
                         </div>
                       </div>
                     )}
