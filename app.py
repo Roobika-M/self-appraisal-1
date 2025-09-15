@@ -142,6 +142,11 @@ def download(file_type):
         if not os.path.exists(pdf_path):
             return jsonify({"error": "PDF file not found after conversion"}), 404
         return send_file(pdf_path, as_attachment=True)
+    elif file_type == "corrective":
+        file_path = os.path.join(base, "appfilled_template.docx")
+        if not os.path.exists(file_path):
+            return jsonify({"error": "Corrective action report not found"}), 404
+        return send_file(file_path, as_attachment=True)
     return jsonify({"error": "Invalid file type"}), 400
 
 
@@ -1193,135 +1198,149 @@ def processing(excel_path, staffname, template_path):
         "{{academics}}": str(academics),
     }
 
-    # also push r/p/s counters into placeholders2
     for i in range(1, 14):
-        placeholders2[f"{{{{r{i}_1}}}}"] = r_counters.get(f"r{i}_1", 0)
+        placeholders2[f"{{{{r{i}_1}}}}"] = globals().get(f"r{i}_1", None)
+
+    # Assign pi_1 to placeholders2[pi_1] for i in range 1 to 7
     for i in range(1, 8):
-        placeholders2[f"{{{{p{i}_1}}}}"] = p_counters.get(f"p{i}_1", 0)
+        placeholders2[f"{{{{p{i}_1}}}}"] = globals().get(f"p{i}_1", None)
+
+    # Assign si_1 to placeholders2[si_1] for i in range 1 to 5
     for i in range(1, 6):
-        placeholders2[f"{{{{s{i}_1}}}}"] = s_counters.get(f"s{i}_1", 0)
+        placeholders2[f"{{{{s{i}_1}}}}"] = globals().get(f"s{i}_1", None)
+    placeholders2["{{u1}}"]=8
 
+    score=[academics, research, selfm, mentor,hod]
 
-    # Replace placeholders in main doc (paragraph-level)
-    try:
-        replaced_any = False
+    fdoc = Document("Faculty Appraisal- Corrective Action Report.docx")
+
+    # Replace placeholders in paragraphs
+    for table in fdoc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                for paragraph in cell.paragraphs:
+                    full_text = paragraph.text
+                    for placeholder, value in placeholders2.items():
+                        if placeholder in full_text:
+                            full_text = full_text.replace(placeholder, str(value))
+                    paragraph.text = full_text
+    lasttable = fdoc.tables[2]
+    assispro = [0.3, 0.3, 0.15, 0.15, 0.1]
+    assospro = [0.2, 0.4, 0.15, 0.15, 0.1]
+    prof = [0.1, 0.4, 0.2, 0.2, 0.1]
+    tot = 0
+    print(detaillist[1])
+
+    for row_idx, row in zip(range(2, 6), lasttable.rows[2:6]):  # rows 2 to 5
+        for cell_idx, cell in zip(range(1, 6), row.cells[1:6]):  # cells 1 to 5
+            if row_idx == 2:
+                cell.text = str(score[cell_idx - 1])  
+
+            elif row_idx == 3:
+                if detaillist[1] == "Professor":
+                    cell.text = str(prof[cell_idx - 1])
+                elif detaillist[1] == "Associate Professor":
+                    cell.text = str(assospro[cell_idx - 1])
+                elif detaillist[1] == "Assistant Professor":
+                    cell.text = str(assispro[cell_idx - 1])
+                else:
+                    cell.text = "0"
+
+            elif row_idx == 4:
+                if detaillist[1] == "Professor":
+                    weight = prof[cell_idx - 1]
+                elif detaillist[1] == "Associate Professor":
+                    weight = assospro[cell_idx - 1]
+                elif detaillist[1] == "Assistant Professor":
+                    weight = assispro[cell_idx - 1]
+                else:
+                    weight = 0
+
+                weighted_score = score[cell_idx - 1] * weight
+                cell.text = str(weighted_score)
+                tot += weighted_score
+
+            else:
+                print("Not filled")
+
+    # Write total to last cell in 5th row (index 4)
+    lasttable.rows[4].cells[-1].text = str(tot)
+
+    
+
+    # Save final doc
+    fdoc.save("appfilled_template.docx")
+    print("Document saved as filled_template.docx")
+        # Replace placeholders in paragraphs with the corresponding values
+    for placeholder, value in placeholders.items():
         for paragraph in doc.paragraphs:
-            text = paragraph.text
-            for placeholder, value in placeholders.items():
-                if placeholder in text:
-                    print(f"Replacing {placeholder} with {value} in paragraph: {text}")
-                    text = text.replace(placeholder, str(value))
-                    replaced_any = True
-            paragraph.text = text
-        if not replaced_any:
-            print("No placeholders replaced in main doc paragraphs.")
-    except Exception as e:
-        print("Error replacing placeholders in main doc paragraphs:", e)
+            if placeholder in paragraph.text:
+                paragraph.text = paragraph.text.replace(placeholder, value)
+    # Save the modified document
+    output_doc_path = "filled_template.docx"
+    doc.save(output_doc_path)
+    fdoc.save("debug_filled_template.docx")
+    print(f"Word document saved as {output_doc_path}")
 
-    # Also replace inside tables of main doc
-    try:
-        replaced_table_any = False
-        for table in doc.tables:
-            for row in table.rows:
-                for cell in row.cells:
-                    for paragraph in cell.paragraphs:
-                        text = paragraph.text
-                        for placeholder, value in placeholders.items():
-                            if placeholder in text:
-                                print(f"Replacing {placeholder} with {value} in table cell: {text}")
-                                text = text.replace(placeholder, str(value))
-                                replaced_table_any = True
-                        paragraph.text = text
-        if not replaced_table_any:
-            print("No placeholders replaced in main doc tables.")
-    except Exception as e:
-        print("Error replacing placeholders in main doc tables:", e)
+def copy_table_contents(source_table, dest_table):
+    """Copy contents from source table to destination table"""
+    # Ensure destination table has enough rows
+    while len(dest_table.rows) < len(source_table.rows):
+        dest_table.add_row()
 
-    # Replace placeholders in corrective doc
-    try:
-        for table in fdoc.tables:
-            for row in table.rows:
-                for cell in row.cells:
-                    for paragraph in cell.paragraphs:
-                        full_text = paragraph.text
-                        for placeholder, value in placeholders2.items():
-                            if placeholder in full_text:
-                                full_text = full_text.replace(placeholder, str(value))
-                        paragraph.text = full_text
-    except Exception as e:
-        print("Error replacing placeholders in corrective doc:", e)
-
-    # Additional corrective doc numeric table filling (example logic)
-    try:
-        if len(fdoc.tables) > 2:
-            lasttable = fdoc.tables[2]
-            score = [academics, research, selfm, mentor, hod]
-            assispro = [0.3, 0.3, 0.15, 0.15, 0.1]
-            assospro = [0.2, 0.4, 0.15, 0.15, 0.1]
-            prof = [0.1, 0.4, 0.2, 0.2, 0.1]
-            tot = 0.0
-            designation = detaillist[1] if len(detaillist) > 1 else ""
-            # rows 2 to 5 (index 2..5), fill cols 1..5 (index 1..5)
-            for row_idx, row in zip(range(2, 6), lasttable.rows[2:6]):
-                for cell_idx, cell in zip(range(1, 6), row.cells[1:6]):
-                    if row_idx == 2:
-                        cell.text = str(score[cell_idx - 1])
-                    elif row_idx == 3:
-                        if designation == "Professor":
-                            cell.text = str(prof[cell_idx - 1])
-                        elif designation == "Associate Professor":
-                            cell.text = str(assospro[cell_idx - 1])
-                        elif designation == "Assistant Professor":
-                            cell.text = str(assispro[cell_idx - 1])
-                        else:
-                            cell.text = "0"
-                    elif row_idx == 4:
-                        if designation == "Professor":
-                            weight = prof[cell_idx - 1]
-                        elif designation == "Associate Professor":
-                            weight = assospro[cell_idx - 1]
-                        elif designation == "Assistant Professor":
-                            weight = assispro[cell_idx - 1]
-                        else:
-                            weight = 0
-                        weighted_score = float(score[cell_idx - 1]) * float(weight)
-                        cell.text = str(weighted_score)
-                        try:
-                            tot += weighted_score
-                        except Exception:
-                            pass
-                    else:
-                        pass
-            # write total to 5th row last cell
+    # Copy cell contents
+    for i, row in enumerate(source_table.rows):
+        for j, cell in enumerate(row.cells):
             try:
-                lasttable.rows[4].cells[-1].text = str(tot)
-            except Exception:
-                pass
-    except Exception as e:
-        print("Error filling corrective doc numeric table:", e)
+                dest_table.cell(i, j).text = cell.text
+            except IndexError:
+                print(f"Warning: Could not copy cell at row {i}, column {j}")
 
-    # Save final docs
+def process_blueprint(excel_path, staffname):
+    """Process the blueprint and fill the template"""
     try:
-        doc.save("filled_template.docx")
-        fdoc.save("appfilled_template.docx")
-        # Also save a debug copy
-        fdoc.save("debug_filled_template.docx")
-        print("Documents saved: filled_template.docx and appfilled_template.docx")
+        # Load both documents
+        source_doc = Document("MSP Self-Appraisal form.docx")
+        template_doc = Document("template.docx")  # Your template document
+
+        # Copy contents from each table
+        for i, source_table in enumerate(source_doc.tables):
+            try:
+                # Make sure template has corresponding table
+                if i < len(template_doc.tables):
+                    copy_table_contents(source_table, template_doc.tables[i])
+            except Exception as e:
+                print(f"Error copying table {i}: {str(e)}")
+
+        # Fill in placeholders
+        placeholders = {
+            "{{research}}": str(research),
+            "{{self}}": str(selfm),
+            "{{mentorship}}": str(mentor),
+            "{{name}}": detaillist[0],
+            "{{designation}}": detaillist[1],
+            "{{dept}}": detaillist[2],
+            "{{empid}}": detaillist[3]
+        }
+
+        # Replace placeholders in paragraphs
+        for paragraph in template_doc.paragraphs:
+            for placeholder, value in placeholders.items():
+                if placeholder in paragraph.text:
+                    paragraph.text = paragraph.text.replace(placeholder, value)
+
+        # Save the filled template
+        template_doc.save("filled_template.docx")
+        print("Successfully filled template and saved as filled_template.docx")
+        
+        return True
+
     except Exception as e:
-        print("Error saving documents:", e)
+        print(f"Error processing document: {str(e)}")
+        return False
 
-    # History append is handled in the upload route
 
-
-@app.route('/<path:path>')
-def static_proxy(path):
-    """Serve static files from React build folder."""
-    file_path = os.path.join(app.static_folder, path)
-    if os.path.exists(file_path):
-        return send_from_directory(app.static_folder, path)
-    else:
-        # Fallback to index.html for client-side routing
-        return send_from_directory(app.static_folder, "index.html")
-
-if __name__ == "__main__":
+if __name__ == '__main__':
+    # with app.app_context():
+    #     db.create_all()
     app.run(debug=True)

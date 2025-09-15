@@ -153,7 +153,7 @@ const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
             <p className="text-xs">Research: {latestScores.research}, Self: {latestScores.selfm}, Mentor: {latestScores.mentor}, Academics: {latestScores.academics}, HOD: {latestScores.hod}</p>
           </div>
           <div className="mb-8">
-            <div className="flex gap-4">
+            <div className="flex gap-4 flex-wrap">
               <Button
                 variant="outline"
                 onClick={async () => {
@@ -197,6 +197,28 @@ const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
               >
                 <Download className="w-4 h-4 mr-2" />
                 Download Word
+              </Button>
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  const res = await fetch("http://localhost:5000/download/corrective", {
+                    method: "GET",
+                    credentials: "include",
+                  });
+                  if (res.ok) {
+                    const blob = await res.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "corrective_action_report.docx";
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                  }
+                }}
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Download Corrective Report
               </Button>
               <Button variant="ghost" onClick={handleBackToDashboard}>
                 Back to Dashboard
@@ -285,7 +307,7 @@ const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
                           ID: {record.employeeId} • {record.designation} • {record.academicYear} • {record.uploadDate}
                         </p>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         <Button
                           variant="outline"
                           size="sm"
@@ -331,6 +353,29 @@ const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
                         >
                           <Download className="w-4 h-4 mr-1" />
                           Download Word
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={async () => {
+                            const res = await fetch("http://localhost:5000/download/corrective", {
+                              method: "GET",
+                              credentials: "include",
+                            });
+                            if (res.ok) {
+                              const blob = await res.blob();
+                              const url = window.URL.createObjectURL(blob);
+                              const a = document.createElement("a");
+                              a.href = url;
+                              a.download = "corrective_action_report.docx";
+                              document.body.appendChild(a);
+                              a.click();
+                              a.remove();
+                            }
+                          }}
+                        >
+                          <Download className="w-4 h-4 mr-1" />
+                          Download Corrective
                         </Button>
                       </div>
                     </div>
