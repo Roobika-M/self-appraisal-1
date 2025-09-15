@@ -86,7 +86,7 @@ def upload():
         return jsonify({"success": False, "error": f"File save failed: {str(e)}"}), 500
 
     try:
-        processing(excel_path, staffname, template_path)
+        processing(excel_path, staffname, template_path, template_file)
     except Exception as e:
         print(f"Error in processing: {e}")
         return jsonify({"success": False, "error": f"Processing failed: {str(e)}"}), 500
@@ -187,7 +187,7 @@ def find_header_row(excel_path, sheet_name):
     return None
 
 
-def processing(excel_path, staffname, template_path):
+def processing(excel_path, staffname, template_path, template_file):
     """Full processing: read provided Excel, populate template Word docs and compute scores."""
     global research, selfm, mentor, academics, hod, detaillist
 
@@ -279,10 +279,12 @@ def processing(excel_path, staffname, template_path):
     ############### Academics section (copy table and compute totals) ###############
     try:
         # We assume doc.tables[1] is destination and uploaded doc1's table[1] is source in original logic.
-        # Since user uploaded only one template, attempt to use template's own tables as both source/dest.
-        source_table = doc2.tables[1]
+        # Now open the uploaded Word file to get source_table for academics
+        uploaded_doc = Document(template_file.filename)  # Open uploaded Word file
+        source_table = uploaded_doc.tables[1]
         destination_table = doc.tables[1]
-    except Exception:
+    except Exception as e:
+        print(f"Error opening uploaded Word file for academics table: {e}")
         source_table = None
         destination_table = None
 

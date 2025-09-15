@@ -96,5 +96,18 @@
     "hod": 0,
     "total_score": 14,
     "timestamp": "2025-09-16T00:51:37.080782"
+  },
+  {
+    "name": "Keren Lois Daniel",
+    "designation": "Assistant Professor",
+    "dept": "nj",
+    "empid": "5",
+    "research": 16,
+    "selfm": 9,
+    "mentor": 0,
+    "academics": 18,
+    "hod": 0,
+    "total_score": 43,
+    "timestamp": "2025-09-16T00:57:39.764211"
   }
 ]
