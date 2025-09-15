@@ -20,13 +20,15 @@ interface FacultyRecord {
     teaching: number;
     research: number;
     service: number;
+    mentor: number;
+    hod: number;
     overall: number;
   };
 }
 
 const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
   const [currentView, setCurrentView] = useState<"dashboard" | "upload" | "results">("dashboard");
-  const [facultyRecords, setFacultyRecords] = useState<FacultyRecord[]>([]);
+  const [appraisalHistory, setAppraisalHistory] = useState<FacultyRecord[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   // Fetch latest scores/details from backend on dashboard load
   useEffect(() => {
@@ -39,29 +41,30 @@ const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
         });
         if (res.ok) {
           const data = await res.json();
-          // Map backend data to FacultyRecord format
-          const record: FacultyRecord = {
-            id: "1",
-            name: data.name || "",
-            employeeId: data.empid || "",
-            department: data.dept || "",
-            designation: data.designation || "",
+          const mappedData = data.map((item: any, index: number) => ({
+            id: (index + 1).toString(),
+            name: item.name || "",
+            employeeId: item.emp_id || "",
+            department: item.department || "",
+            designation: item.designation || "",
             academicYear: "2024-25",
             uploadDate: new Date().toLocaleDateString(),
             status: "completed",
             scores: {
-              teaching: data.academics || 0,
-              research: data.research || 0,
-              service: data.selfm || 0,
-              overall: (data.academics || 0) + (data.research || 0) + (data.selfm || 0) + (data.mentor || 0)
+              teaching: item.academics || 0,
+              research: item.research || 0,
+              service: item.selfm || 0,
+              mentor: item.mentor || 0,
+              hod: item.hod || 0,
+              overall: (item.academics || 0) + (item.research || 0) + (item.selfm || 0) + (item.mentor || 0) + (item.hod || 0)
             }
-          };
-          setFacultyRecords([record]);
+          }));
+          setAppraisalHistory(mappedData);
         } else {
-          setFacultyRecords([]);
+          setAppraisalHistory([]);
         }
       } catch {
-        setFacultyRecords([]);
+        setAppraisalHistory([]);
       }
       setLoading(false);
     };
@@ -70,11 +73,11 @@ const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
   const [latestScores, setLatestScores] = useState<any | null>(null);
 
   const stats = {
-    totalUploads: facultyRecords.length,
-    processing: facultyRecords.filter(r => r.status === "processing").length,
-    completed: facultyRecords.filter(r => r.status === "completed").length,
-    averageScore: facultyRecords.length > 0 
-      ? Math.round(facultyRecords.reduce((sum, r) => sum + r.scores.overall, 0) / facultyRecords.length * 10) / 10
+    totalUploads: appraisalHistory.length,
+    processing: appraisalHistory.filter(r => r.status === "processing").length,
+    completed: appraisalHistory.filter(r => r.status === "completed").length,
+    averageScore: appraisalHistory.length > 0
+      ? Math.round(appraisalHistory.reduce((sum, r) => sum + r.scores.overall, 0) / appraisalHistory.length * 10) / 10
       : 0
   };
 
@@ -95,7 +98,7 @@ const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
       });
       if (res.ok) {
         const scores = await res.json();
-        setLatestScores(scores);
+        setLatestScores(scores.length > 0 ? scores[scores.length - 1] : null);
         setCurrentView("results");
       } else {
         setLatestScores(null);
@@ -138,10 +141,16 @@ const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
             <p className="text-muted-foreground">Scores for {latestScores.name}</p>
           </div>
           <div className="grid grid-cols-2 gap-6 mb-8">
-            <StatCard title="Research" value={latestScores.research} icon={BarChart3} />
-            <StatCard title="Self" value={latestScores.selfm} icon={BarChart3} />
-            <StatCard title="Mentor" value={latestScores.mentor} icon={BarChart3} />
-            <StatCard title="Academics" value={latestScores.academics} icon={BarChart3} />
+            <StatCard title="Research" value={latestScores.research || 0} icon={BarChart3} />
+            <StatCard title="Self" value={latestScores.selfm || 0} icon={BarChart3} />
+            <StatCard title="Mentor" value={latestScores.mentor || 0} icon={BarChart3} />
+            <StatCard title="Academics" value={latestScores.academics || 0} icon={BarChart3} />
+            <StatCard title="HOD" value={latestScores.hod || 0} icon={BarChart3} />
+          </div>
+          {/* Debug info */}
+          <div className="mb-4 p-4 bg-muted rounded-lg">
+            <p className="text-sm text-muted-foreground">Debug Info:</p>
+            <p className="text-xs">Research: {latestScores.research}, Self: {latestScores.selfm}, Mentor: {latestScores.mentor}, Academics: {latestScores.academics}, HOD: {latestScores.hod}</p>
           </div>
           <div className="mb-8">
             <div className="flex gap-4">
@@ -246,7 +255,7 @@ const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
           <CardContent>
             {loading ? (
               <div className="text-center py-12">Loading...</div>
-            ) : facultyRecords.length === 0 ? (
+            ) : appraisalHistory.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center mx-auto mb-4">
                   <Upload className="w-8 h-8 text-muted-foreground" />
@@ -262,7 +271,7 @@ const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
               </div>
             ) : (
               <div className="space-y-4">
-                {facultyRecords.map((record) => (
+                {appraisalHistory.map((record) => (
                   <div key={record.id} className="border rounded-lg p-4 space-y-3">
                     <div className="flex items-start justify-between">
                       <div className="space-y-1">
@@ -326,7 +335,7 @@ const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
                       </div>
                     </div>
                     {record.status === "completed" && (
-                      <div className="grid grid-cols-4 gap-4 pt-2 border-t">
+                      <div className="grid grid-cols-5 gap-4 pt-2 border-t">
                         <div>
                           <p className="text-sm text-muted-foreground">Academics</p>
                           <p className="font-medium">{record.scores.teaching}</p>
@@ -341,7 +350,11 @@ const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">Mentor</p>
-                          <p className="font-medium">{record.scores.overall}</p>
+                          <p className="font-medium">{record.scores.mentor}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">HOD</p>
+                          <p className="font-medium">{record.scores.hod}</p>
                         </div>
                       </div>
                     )}

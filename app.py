@@ -1,14 +1,17 @@
 from flask import Flask, request, jsonify, send_file, send_from_directory
 from flask_cors import CORS
 import os
+import json
 import pandas as pd
 from docx import Document
 from docx2pdf import convert
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.shared import Pt
+import threading
+from datetime import datetime
 
 app = Flask(__name__, static_folder="build", static_url_path="/")
-CORS(app, supports_credentials=True)
+CORS(app, origins=['http://localhost:8080'], supports_credentials=True)
 app.secret_key = "your_secret_key"
 
 # Globals
@@ -88,6 +91,29 @@ def upload():
         print(f"Error in processing: {e}")
         return jsonify({"success": False, "error": f"Processing failed: {str(e)}"}), 500
 
+    # Save appraisal to history
+    with history_lock:
+        history = load_history()
+        try:
+            total_score = int(research) + int(selfm) + int(mentor) + int(academics) + int(hod)
+        except Exception:
+            total_score = 0
+        appraisal = {
+            "name": staffname,
+            "designation": detaillist[1] if len(detaillist) > 1 else "",
+            "dept": detaillist[2] if len(detaillist) > 2 else "",
+            "empid": detaillist[3] if len(detaillist) > 3 else "",
+            "research": research,
+            "selfm": selfm,
+            "mentor": mentor,
+            "academics": academics,
+            "hod": hod,
+            "total_score": total_score,
+            "timestamp": datetime.now().isoformat()
+        }
+        history.append(appraisal)
+        save_history(history)
+
     print("File processed successfully.")
     return jsonify({"success": True, "message": "File processed successfully."}), 200
 
@@ -119,24 +145,26 @@ def download(file_type):
     return jsonify({"error": "Invalid file type"}), 400
 
 
+HISTORY_FILE = "appraisal_history.json"
+history_lock = threading.Lock()
+
+def load_history():
+    if not os.path.exists(HISTORY_FILE):
+        return []
+    with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+        try:
+            return json.load(f)
+        except Exception:
+            return []
+
+def save_history(history):
+    with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+        json.dump(history, f, indent=2)
+
 @app.route("/download_path")
 def download_path():
-    global research, selfm, mentor, academics, hod
-    try:
-        total_score = int(research) + int(selfm) + int(mentor) + int(academics) + int(hod)
-    except Exception:
-        total_score = 0
-    return jsonify({
-        "name": staffname,
-        "research": research,
-        "selfm": selfm,
-        "mentor": mentor,
-        "academics": academics,
-        "hod": hod,
-        "total_score": total_score
-    })
-
-    CORS(app)
+    history = load_history()
+    return jsonify(history)
 
 def find_header_row(excel_path, sheet_name):
     """Attempt to find the header row index where 'Faculty Name' or similar exists.
@@ -369,9 +397,11 @@ def processing(excel_path, staffname, template_path):
         try:
             df_journal = pd.read_excel(excel_path, sheet_name="Journal Publication", skiprows=skiprows)
             df_journal.columns = df_journal.columns.str.strip()
-            if "Faculty Name" in df_journal.columns:
-                df_journal["Faculty Name"] = df_journal["Faculty Name"].ffill()
-                df_filtered = df_journal[df_journal["Faculty Name"].astype(str).str.strip() == staffname]
+            possible_names = ["Faculty Name", "Faculty name", "Name of the Faculty", "Name", "Faculty"]
+            selected_col = next((col for col in possible_names if col in df_journal.columns), None)
+            if selected_col:
+                df_journal[selected_col] = df_journal[selected_col].ffill()
+                df_filtered = df_journal[df_journal[selected_col].astype(str).str.strip() == staffname]
             else:
                 df_filtered = pd.DataFrame()
         except Exception as e:
@@ -444,9 +474,11 @@ def processing(excel_path, staffname, template_path):
         try:
             df_bookpub = pd.read_excel(excel_path, sheet_name="Book Publication", skiprows=skiprows)
             df_bookpub.columns = df_bookpub.columns.str.strip()
-            if "Faculty Name" in df_bookpub.columns:
-                df_bookpub["Faculty Name"] = df_bookpub["Faculty Name"].ffill()
-                df_filtered = df_bookpub[df_bookpub["Faculty Name"].astype(str).str.strip() == staffname]
+            possible_names = ["Faculty Name", "Faculty name", "Name of the Faculty", "Name", "Faculty"]
+            selected_col = next((col for col in possible_names if col in df_bookpub.columns), None)
+            if selected_col:
+                df_bookpub[selected_col] = df_bookpub[selected_col].ffill()
+                df_filtered = df_bookpub[df_bookpub[selected_col].astype(str).str.strip() == staffname]
             else:
                 df_filtered = pd.DataFrame()
         except Exception as e:
@@ -495,9 +527,11 @@ def processing(excel_path, staffname, template_path):
         try:
             df_conference = pd.read_excel(excel_path, sheet_name="Conferences", skiprows=skiprows)
             df_conference.columns = df_conference.columns.str.strip()
-            if "Faculty Name" in df_conference.columns:
-                df_conference["Faculty Name"] = df_conference["Faculty Name"].ffill()
-                df_filtered = df_conference[df_conference["Faculty Name"].astype(str).str.strip() == staffname]
+            possible_names = ["Faculty Name", "Faculty name", "Name of the Faculty", "Name", "Faculty"]
+            selected_col = next((col for col in possible_names if col in df_conference.columns), None)
+            if selected_col:
+                df_conference[selected_col] = df_conference[selected_col].ffill()
+                df_filtered = df_conference[df_conference[selected_col].astype(str).str.strip() == staffname]
             else:
                 df_filtered = pd.DataFrame()
         except Exception as e:
@@ -751,9 +785,11 @@ def processing(excel_path, staffname, template_path):
         try:
             df_workshop = pd.read_excel(excel_path, sheet_name="Workshop", skiprows=skiprows)
             df_workshop.columns = df_workshop.columns.str.strip()
-            if "Faculty Name" in df_workshop.columns:
-                df_workshop["Faculty Name"] = df_workshop["Faculty Name"].ffill()
-                df_filtered = df_workshop[df_workshop["Faculty Name"].astype(str).str.strip() == staffname]
+            possible_names = ["Faculty Name", "Faculty name", "Name of the Faculty", "Name", "Faculty"]
+            selected_col = next((col for col in possible_names if col in df_workshop.columns), None)
+            if selected_col:
+                df_workshop[selected_col] = df_workshop[selected_col].ffill()
+                df_filtered = df_workshop[df_workshop[selected_col].astype(str).str.strip() == staffname]
             else:
                 df_filtered = pd.DataFrame()
         except Exception as e:
@@ -808,7 +844,7 @@ def processing(excel_path, staffname, template_path):
             df_develop = pd.read_excel(excel_path, sheet_name="Faculty Internship", skiprows=skiprows)
             df_develop.columns = df_develop.columns.str.strip()
             # possible column names
-            possible_names = ["Faculty Name", "Faculty"]
+            possible_names = ["Faculty Name", "Faculty name", "Name of the Faculty", "Name", "Faculty"]
             selectedcol = next((col for col in possible_names if col in df_develop.columns), None)
             if selectedcol:
                 df_develop[selectedcol] = df_develop[selectedcol].ffill()
@@ -863,7 +899,7 @@ def processing(excel_path, staffname, template_path):
         try:
             df_mooc = pd.read_excel(excel_path, sheet_name="MOOC Course", skiprows=skiprows)
             df_mooc.columns = df_mooc.columns.str.strip()
-            possible_names = ["Faculty Name", "Faculty"]
+            possible_names = ["Faculty Name", "Faculty name", "Name of the Faculty", "Name", "Faculty"]
             selectedcol = next((col for col in possible_names if col in df_mooc.columns), None)
             if selectedcol:
                 df_mooc[selectedcol] = df_mooc[selectedcol].ffill()
@@ -920,7 +956,7 @@ def processing(excel_path, staffname, template_path):
         try:
             df_mou = pd.read_excel(excel_path, sheet_name="MoU", skiprows=skiprows)
             df_mou.columns = df_mou.columns.str.strip()
-            possible_names = ["Faculty Name", "Faculty"]
+            possible_names = ["Faculty Name", "Faculty name", "Name of the Faculty", "Name", "Faculty"]
             selectedcol = next((col for col in possible_names if col in df_mou.columns), None)
             if selectedcol:
                 df_mou[selectedcol] = df_mou[selectedcol].ffill()
@@ -976,10 +1012,12 @@ def processing(excel_path, staffname, template_path):
         try:
             df_workshops_conducted = pd.read_excel(excel_path, sheet_name="Workshops", skiprows=skiprows)
             df_workshops_conducted.columns = df_workshops_conducted.columns.str.strip()
-            if "Faculty Name" in df_workshops_conducted.columns:
-                df_workshops_conducted["Faculty Name"] = df_workshops_conducted["Faculty Name"].ffill()
+            possible_names = ["Faculty Name", "Faculty name", "Name of the Faculty", "Name", "Faculty"]
+            selectedcol = next((col for col in possible_names if col in df_workshops_conducted.columns), None)
+            if selectedcol:
+                df_workshops_conducted[selectedcol] = df_workshops_conducted[selectedcol].ffill()
                 df_filtered = df_workshops_conducted[
-                    (df_workshops_conducted["Faculty Name"].astype(str).str.strip() == staffname) &
+                    (df_workshops_conducted[selectedcol].astype(str).str.strip() == staffname) &
                     (df_workshops_conducted["Role"].fillna("").astype(str).str.strip().str.lower() == "conducted")
                 ]
             else:
@@ -1271,6 +1309,8 @@ def processing(excel_path, staffname, template_path):
         print("Documents saved: filled_template.docx and appfilled_template.docx")
     except Exception as e:
         print("Error saving documents:", e)
+
+    # History append is handled in the upload route
 
 
 @app.route('/<path:path>')

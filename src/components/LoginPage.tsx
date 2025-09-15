@@ -89,11 +89,7 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
               </Button>
             </form>
 
-            {/* Demo Credentials */}
-            <div className="mt-6 p-3 bg-muted rounded-lg text-sm space-y-1">
-              <p className="font-medium text-foreground">Demo Credentials:</p>
-              <p className="text-muted-foreground">Username: admin, Password: admin</p>
-            </div>
+            
           </CardContent>
         </Card>
 
