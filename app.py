@@ -171,6 +171,13 @@ def download_path():
     history = load_history()
     return jsonify(history)
 
+@app.route('/<path:path>')
+def serve_react_app(path):
+    file_path = os.path.join(app.static_folder, path)
+    if os.path.exists(file_path):
+        return send_from_directory(app.static_folder, path)
+    return send_from_directory(app.static_folder, 'index.html')
+
 def find_header_row(excel_path, sheet_name):
     """Attempt to find the header row index where 'Faculty Name' or similar exists.
        Returns None if not found."""
@@ -1201,15 +1208,15 @@ def processing(excel_path, staffname, template_path, template_file):
     }
 
     for i in range(1, 14):
-        placeholders2[f"{{{{r{i}_1}}}}"] = globals().get(f"r{i}_1", None)
+        placeholders2[f"{{{{r{i}_1}}}}"] = globals().get(f"r{i}_1", 0)
 
     # Assign pi_1 to placeholders2[pi_1] for i in range 1 to 7
     for i in range(1, 8):
-        placeholders2[f"{{{{p{i}_1}}}}"] = globals().get(f"p{i}_1", None)
+        placeholders2[f"{{{{p{i}_1}}}}"] = globals().get(f"p{i}_1", 0)
 
     # Assign si_1 to placeholders2[si_1] for i in range 1 to 5
     for i in range(1, 6):
-        placeholders2[f"{{{{s{i}_1}}}}"] = globals().get(f"s{i}_1", None)
+        placeholders2[f"{{{{s{i}_1}}}}"] = globals().get(f"s{i}_1", 0)
     placeholders2["{{u1}}"]=8
 
     score=[academics, research, selfm, mentor,hod]

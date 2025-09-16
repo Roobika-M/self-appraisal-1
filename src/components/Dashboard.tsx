@@ -147,11 +147,6 @@ const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
             <StatCard title="Academics" value={latestScores.academics || 0} icon={BarChart3} />
             <StatCard title="HOD" value={latestScores.hod || 0} icon={BarChart3} />
           </div>
-          {/* Debug info */}
-          <div className="mb-4 p-4 bg-muted rounded-lg">
-            <p className="text-sm text-muted-foreground">Debug Info:</p>
-            <p className="text-xs">Research: {latestScores.research}, Self: {latestScores.selfm}, Mentor: {latestScores.mentor}, Academics: {latestScores.academics}, HOD: {latestScores.hod}</p>
-          </div>
           <div className="mb-8">
             <div className="flex gap-4 flex-wrap">
               <Button
