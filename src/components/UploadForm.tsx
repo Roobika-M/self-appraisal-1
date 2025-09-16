@@ -10,6 +10,14 @@ interface UploadFormProps {
   onCancel: () => void;
 }
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
 const UploadForm = ({ onComplete, onCancel }: UploadFormProps) => {
   const [formData, setFormData] = useState({
     facultyName: "",
@@ -28,6 +36,10 @@ const UploadForm = ({ onComplete, onCancel }: UploadFormProps) => {
       ...formData,
       [e.target.name]: e.target.value
     });
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleDrag = (e: React.DragEvent) => {
@@ -148,16 +160,21 @@ const UploadForm = ({ onComplete, onCancel }: UploadFormProps) => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="designation">Designation</Label>
-                <Input
-                  id="designation"
-                  name="designation"
-                  placeholder="e.g., Assistant Professor"
-                  value={formData.designation}
-                  onChange={handleInputChange}
-                  className="bg-muted/30"
-                />
-              </div>
+              <Label htmlFor="designation">Designation</Label>
+              <Select
+                onValueChange={(value) => handleSelectChange("designation", value)}
+                value={formData.designation}
+              >
+                <SelectTrigger id="designation" className="bg-muted/30">
+                  <SelectValue placeholder="Select designation" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Professor">Professor</SelectItem>
+                  <SelectItem value="Assistant Professor">Assistant Professor</SelectItem>
+                  <SelectItem value="Associate Professor">Associate Professor</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
