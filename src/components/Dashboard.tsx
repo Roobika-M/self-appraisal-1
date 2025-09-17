@@ -16,6 +16,7 @@ interface FacultyRecord {
   academicYear: string;
   uploadDate: string;
   status: "completed" | "processing" | "pending";
+  timestamp: string;
   scores: {
     teaching: number;
     research: number;
@@ -30,44 +31,47 @@ const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
   const [currentView, setCurrentView] = useState<"dashboard" | "upload" | "results">("dashboard");
   const [appraisalHistory, setAppraisalHistory] = useState<FacultyRecord[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  // Fetch latest scores/details from backend on dashboard load
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch("http://localhost:5000/download_path", {
-          method: "GET",
-          credentials: "include",
-        });
-        if (res.ok) {
-          const data = await res.json();
-          const mappedData = data.map((item: any, index: number) => ({
-            id: (index + 1).toString(),
-            name: item.name || "",
-            employeeId: item.emp_id || "",
-            department: item.department || "",
-            designation: item.designation || "",
-            academicYear: "2024-25",
-            uploadDate: new Date().toLocaleDateString(),
-            status: "completed",
-            scores: {
-              teaching: item.academics || 0,
-              research: item.research || 0,
-              service: item.selfm || 0,
-              mentor: item.mentor || 0,
-              hod: item.hod || 0,
-              overall: (item.academics || 0) + (item.research || 0) + (item.selfm || 0) + (item.mentor || 0) + (item.hod || 0)
-            }
-          }));
-          setAppraisalHistory(mappedData);
-        } else {
-          setAppraisalHistory([]);
-        }
-      } catch {
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:5000/download_path", {
+        method: "GET",
+        credentials: "include",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const mappedData = data.map((item: any, index: number) => ({
+          id: (index + 1).toString(),
+          name: item.name || "",
+          employeeId: item.emp_id || "",
+          department: item.department || "",
+          designation: item.designation || "",
+          academicYear: "2024-25",
+          uploadDate: new Date().toLocaleDateString(),
+          status: "completed",
+          timestamp: item.timestamp || "",
+          scores: {
+            teaching: item.academics || 0,
+            research: item.research || 0,
+            service: item.selfm || 0,
+            mentor: item.mentor || 0,
+            hod: item.hod || 0,
+            overall: (item.academics || 0) + (item.research || 0) + (item.selfm || 0) + (item.mentor || 0) + (item.hod || 0)
+          }
+        }));
+        setAppraisalHistory(mappedData);
+      } else {
         setAppraisalHistory([]);
       }
-      setLoading(false);
-    };
+    } catch {
+      setAppraisalHistory([]);
+    }
+    setLoading(false);
+  };
+
+  // Fetch latest scores/details from backend on dashboard load
+  useEffect(() => {
     fetchData();
   }, []);
   const [latestScores, setLatestScores] = useState<any | null>(null);
@@ -371,6 +375,22 @@ const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
                         >
                           <Download className="w-4 h-4 mr-1" />
                           Download Corrective
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={async () => {
+                            if (record.timestamp) {
+                              await fetch(`http://localhost:5000/history/${record.timestamp}`, {
+                                method: "DELETE",
+                                credentials: "include",
+                              });
+                              await fetchData();
+                            }
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4 mr-1" />
+                          Delete
                         </Button>
                       </div>
                     </div>

@@ -171,6 +171,15 @@ def download_path():
     history = load_history()
     return jsonify(history)
 
+@app.route("/history/<timestamp>", methods=["DELETE"])
+def delete_history_record(timestamp):
+    with history_lock:
+        history = load_history()
+        # Filter out the record with matching timestamp
+        updated_history = [item for item in history if item.get("timestamp") != timestamp]
+        save_history(updated_history)
+    return jsonify({"success": True, "message": "Record deleted successfully"}), 200
+
 @app.route('/<path:path>')
 def serve_react_app(path):
     file_path = os.path.join(app.static_folder, path)
