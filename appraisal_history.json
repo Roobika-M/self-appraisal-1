@@ -1,1 +1,80 @@
-[]
+[
+  {
+    "name": "Ananthi",
+    "designation": "Assistant Professor",
+    "dept": "csbs",
+    "empid": "5",
+    "research": 8,
+    "selfm": 6,
+    "mentor": 0,
+    "academics": 18,
+    "hod": 0,
+    "total_score": 32,
+    "timestamp": "2025-10-26T22:27:17.219824"
+  },
+  {
+    "name": "Ananthi",
+    "designation": "Assistant Professor",
+    "dept": "csbs",
+    "empid": "412",
+    "research": 8,
+    "selfm": 6,
+    "mentor": 0,
+    "academics": 5,
+    "hod": 0,
+    "total_score": 19,
+    "timestamp": "2025-11-04T11:51:41.544155"
+  },
+  {
+    "name": "J Poongodi",
+    "designation": "Assistant Professor",
+    "dept": "csbs",
+    "empid": "5",
+    "research": 0,
+    "selfm": 5,
+    "mentor": 0,
+    "academics": 18,
+    "hod": 0,
+    "total_score": 23,
+    "timestamp": "2025-11-04T21:05:07.082600"
+  },
+  {
+    "name": "Keren Lois Daniel",
+    "designation": "Assistant Professor",
+    "dept": "csbs",
+    "empid": "5",
+    "research": 16,
+    "selfm": 9,
+    "mentor": 0,
+    "academics": 5,
+    "hod": 0,
+    "total_score": 30,
+    "timestamp": "2025-11-20T18:19:10.923514"
+  },
+  {
+    "name": "J Poongodi",
+    "designation": "Assistant Professor",
+    "dept": "csbs",
+    "empid": "5",
+    "research": 0,
+    "selfm": 5,
+    "mentor": 0,
+    "academics": 18,
+    "hod": 0,
+    "total_score": 23,
+    "timestamp": "2025-12-10T21:37:27.526571"
+  },
+  {
+    "name": "Keren Lois Daniel",
+    "designation": "Assistant Professor",
+    "dept": "csbs",
+    "empid": "5",
+    "research": 16,
+    "selfm": 9,
+    "mentor": 0,
+    "academics": 18,
+    "hod": 0,
+    "total_score": 43,
+    "timestamp": "2025-12-10T21:39:35.296654"
+  }
+]

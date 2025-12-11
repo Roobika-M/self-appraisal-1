@@ -1,14 +1,18 @@
 import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { GraduationCap } from "lucide-react";
 
-const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
+const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as any)?.from?.pathname || "/dashboard";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,7 +25,10 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
         credentials: "include",
       });
       if (res.redirected || res.ok) {
-        onLogin();
+        try {
+          sessionStorage.setItem("isLoggedIn", JSON.stringify(true));
+        } catch {}
+        navigate(from, { replace: true });
       } else {
         setError("Login failed. Please check your credentials.");
       }

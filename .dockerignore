@@ -1,0 +1,14 @@
+# Python ignores
+__pycache__
+*.pyc
+venv/
+.env
+
+# Node ignores
+node_modules
+# The 'build' folder is built by Stage 1, but we ignore it here
+# so the initial 'COPY' command doesn't include stale local builds.
+build
+dist
+.git
+.gitignore

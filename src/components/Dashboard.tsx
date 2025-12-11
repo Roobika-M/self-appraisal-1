@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -27,8 +28,20 @@ interface FacultyRecord {
   };
 }
 
-const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
-  const [currentView, setCurrentView] = useState<"dashboard" | "upload" | "results">("dashboard");
+const Dashboard = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const handleLogout = () => {
+    try {
+      sessionStorage.removeItem("isLoggedIn");
+    } catch {}
+    navigate("/login", { replace: true });
+  };
+  const currentView: "dashboard" | "upload" | "results" = location.pathname.includes("/upload")
+    ? "upload"
+    : location.pathname.includes("/results")
+    ? "results"
+    : "dashboard";
   const [appraisalHistory, setAppraisalHistory] = useState<FacultyRecord[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -74,6 +87,8 @@ const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  // current view is driven by URL (see navigate calls below)
   const [latestScores, setLatestScores] = useState<any | null>(null);
 
   const stats = {
@@ -86,11 +101,11 @@ const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
   };
 
   const handleNewUpload = () => {
-    setCurrentView("upload");
+    navigate("/dashboard/upload");
   };
 
   const handleBackToDashboard = () => {
-    setCurrentView("dashboard");
+    navigate("/dashboard");
   };
 
   const handleUploadComplete = async (data: any) => {
@@ -103,21 +118,21 @@ const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
       if (res.ok) {
         const scores = await res.json();
         setLatestScores(scores.length > 0 ? scores[scores.length - 1] : null);
-        setCurrentView("results");
+        navigate("/dashboard/results");
       } else {
         setLatestScores(null);
-        setCurrentView("dashboard");
+        navigate("/dashboard");
       }
     } catch {
       setLatestScores(null);
-      setCurrentView("dashboard");
+      navigate("/dashboard");
     }
   };
 
   if (currentView === "upload") {
     return (
       <div className="min-h-screen bg-background">
-        <Header onLogout={onLogout} />
+        <Header onLogout={handleLogout} />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center gap-4 mb-6">
             <Button variant="ghost" size="sm" onClick={handleBackToDashboard}>
@@ -138,7 +153,7 @@ const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
   if (currentView === "results" && latestScores) {
     return (
       <div className="min-h-screen bg-background">
-        <Header onLogout={onLogout} />
+        <Header onLogout={handleLogout} />
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-6">
             <h1 className="text-2xl font-semibold text-foreground">Faculty Appraisal Results</h1>
@@ -231,7 +246,7 @@ const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header onLogout={onLogout} />
+      <Header onLogout={handleLogout} />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Cards */}
