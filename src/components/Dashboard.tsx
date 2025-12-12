@@ -48,7 +48,7 @@ const Dashboard = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/download_path", {
+      const res = await fetch("/api/download_path", {
         method: "GET",
         credentials: "include",
       });
@@ -113,7 +113,7 @@ const Dashboard = () => {
         return;
       }
       try {
-        const res = await fetch("http://localhost:5000/download_path", { method: "GET", credentials: "include" });
+        const res = await fetch("/api/download_path", { method: "GET", credentials: "include" });
         if (res.ok) {
           const list = await res.json();
           const matched = list.find((it: any) => it.timestamp === ts);
@@ -148,7 +148,7 @@ const Dashboard = () => {
   const handleUploadComplete = async (data: any) => {
     // After upload, fetch scores from backend and show results page
     try {
-      const res = await fetch("http://localhost:5000/download_path", {
+      const res = await fetch("/api/download_path", {
         method: "GET",
         credentials: "include",
       });
@@ -210,7 +210,7 @@ const Dashboard = () => {
               <Button
                 variant="outline"
                 onClick={async () => {
-                  const res = await fetch("http://localhost:5000/download/pdf", {
+                  const res = await fetch("/api/download/pdf", {
                     method: "GET",
                     credentials: "include",
                   });
@@ -232,7 +232,7 @@ const Dashboard = () => {
               <Button
                 variant="outline"
                 onClick={async () => {
-                  const res = await fetch("http://localhost:5000/download/docx", {
+                  const res = await fetch("/api/download/docx", {
                     method: "GET",
                     credentials: "include",
                   });
@@ -254,7 +254,7 @@ const Dashboard = () => {
               <Button
                 variant="outline"
                 onClick={async () => {
-                  const res = await fetch("http://localhost:5000/download/corrective", {
+                  const res = await fetch("/api/download/corrective", {
                     method: "GET",
                     credentials: "include",
                   });
@@ -365,7 +365,7 @@ const Dashboard = () => {
                           variant="outline"
                           size="sm"
                           onClick={async () => {
-                            const res = await fetch("http://localhost:5000/download/pdf", {
+                            const res = await fetch("/api/download/pdf", {
                               method: "GET",
                               credentials: "include",
                             });
@@ -383,16 +383,6 @@ const Dashboard = () => {
                         >
                           <Download className="w-4 h-4 mr-1" />
                           Download PDF
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            if (record.timestamp) navigate(`/dashboard/results/${encodeURIComponent(record.timestamp)}`);
-                          }}
-                        >
-                          <Eye className="w-4 h-4 mr-1" />
-                          View Results
                         </Button>
                         <Button
                           variant="outline"

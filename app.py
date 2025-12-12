@@ -4,14 +4,15 @@ import os
 import json
 import pandas as pd
 from docx import Document
-from docx2pdf import convert
+import subprocess
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.shared import Pt
 import threading
 from datetime import datetime
 
 app = Flask(__name__, static_folder="build", static_url_path="/")
-CORS(app, origins=['http://localhost:8080'], supports_credentials=True)
+# Allow both local development and Docker container access
+CORS(app, origins=['http://localhost:8080', 'http://127.0.0.1:8080', 'http://frontend:8080'], supports_credentials=True)
 app.secret_key = "your_secret_key"
 
 # Globals
@@ -28,8 +29,15 @@ def home():
 @app.route("/login", methods=["POST", "GET"])
 def login():
     if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
+        # Accept both JSON and form data
+        if request.is_json:
+            data = request.get_json()
+            username = data.get("username")
+            password = data.get("password")
+        else:
+            username = request.form.get("username")
+            password = request.form.get("password")
+        
         if not username or not password:
             return jsonify({"success": False, "error": "Please enter both username and password."}), 400
         # dummy auth: password 'admin' allows access
@@ -134,8 +142,20 @@ def download(file_type):
         # Convert DOCX to PDF if PDF doesn't exist or is older than DOCX
         try:
             if not os.path.exists(pdf_path) or os.path.getmtime(pdf_path) < os.path.getmtime(docx_path):
-                from docx2pdf import convert
-                convert(docx_path, pdf_path)
+                    # Use LibreOffice headless mode to convert DOCX -> PDF inside the container
+                    try:
+                        subprocess.run([
+                            "libreoffice",
+                            "--headless",
+                            "--convert-to",
+                            "pdf",
+                            "--outdir",
+                            base,
+                            docx_path,
+                        ], check=True)
+                    except Exception as e:
+                        print(f"Error converting DOCX to PDF via libreoffice: {e}")
+                        return jsonify({"error": f"PDF conversion failed: {str(e)}"}), 500
         except Exception as e:
             print(f"Error converting DOCX to PDF: {e}")
             return jsonify({"error": f"PDF conversion failed: {str(e)}"}), 500
@@ -1361,4 +1381,4 @@ def process_blueprint(excel_path, staffname):
 if __name__ == '__main__':
     # with app.app_context():
     #     db.create_all()
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

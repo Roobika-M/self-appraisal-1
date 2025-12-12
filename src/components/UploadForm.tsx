@@ -92,7 +92,7 @@ const UploadForm = ({ onComplete, onCancel }: UploadFormProps) => {
       data.append("excel_file", selectedExcelFile);
       data.append("word_file", selectedWordFile);
 
-      const res = await fetch("http://localhost:5000/upload", {
+      const res = await fetch("/api/upload", {
         method: "POST",
         body: data,
         credentials: "include",
