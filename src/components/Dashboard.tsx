@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -90,6 +90,43 @@ const Dashboard = () => {
 
   // current view is driven by URL (see navigate calls below)
   const [latestScores, setLatestScores] = useState<any | null>(null);
+  const params = useParams();
+  const resultTimestamp = params?.id;
+  const [displayScores, setDisplayScores] = useState<any | null>(null);
+  // determine which scores to show on results page: param -> appraisalHistory -> latestScores -> fetch
+  useEffect(() => {
+    const findByTimestamp = async (ts: string | undefined) => {
+      if (!ts) {
+        setDisplayScores(latestScores);
+        return;
+      }
+      const found = appraisalHistory.find((r) => r.timestamp === ts);
+      if (found) {
+        setDisplayScores({
+          research: found.scores.research,
+          selfm: found.scores.service,
+          mentor: found.scores.mentor,
+          academics: found.scores.teaching,
+          hod: found.scores.hod,
+          name: found.name,
+        });
+        return;
+      }
+      try {
+        const res = await fetch("http://localhost:5000/download_path", { method: "GET", credentials: "include" });
+        if (res.ok) {
+          const list = await res.json();
+          const matched = list.find((it: any) => it.timestamp === ts);
+          if (matched) {
+            setDisplayScores(matched);
+            return;
+          }
+        }
+      } catch {}
+      setDisplayScores(latestScores);
+    };
+    findByTimestamp(resultTimestamp);
+  }, [resultTimestamp, appraisalHistory, latestScores]);
 
   const stats = {
     totalUploads: appraisalHistory.length,
@@ -117,8 +154,10 @@ const Dashboard = () => {
       });
       if (res.ok) {
         const scores = await res.json();
-        setLatestScores(scores.length > 0 ? scores[scores.length - 1] : null);
-        navigate("/dashboard/results");
+        const last = scores.length > 0 ? scores[scores.length - 1] : null;
+        setLatestScores(last);
+        const ts = last?.timestamp || "";
+        navigate(`/dashboard/results/${encodeURIComponent(ts)}`);
       } else {
         setLatestScores(null);
         navigate("/dashboard");
@@ -150,21 +189,21 @@ const Dashboard = () => {
     );
   }
 
-  if (currentView === "results" && latestScores) {
+  if (currentView === "results" && displayScores) {
     return (
       <div className="min-h-screen bg-background">
         <Header onLogout={handleLogout} />
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-6">
             <h1 className="text-2xl font-semibold text-foreground">Faculty Appraisal Results</h1>
-            <p className="text-muted-foreground">Scores for {latestScores.name}</p>
+            <p className="text-muted-foreground">Scores for {displayScores.name}</p>
           </div>
           <div className="grid grid-cols-2 gap-6 mb-8">
-            <StatCard title="Research" value={latestScores.research || 0} icon={BarChart3} />
-            <StatCard title="Self" value={latestScores.selfm || 0} icon={BarChart3} />
-            <StatCard title="Mentor" value={latestScores.mentor || 0} icon={BarChart3} />
-            <StatCard title="Academics" value={latestScores.academics || 0} icon={BarChart3} />
-            <StatCard title="HOD" value={latestScores.hod || 0} icon={BarChart3} />
+            <StatCard title="Research" value={displayScores.research || 0} icon={BarChart3} />
+            <StatCard title="Self" value={displayScores.selfm || 0} icon={BarChart3} />
+            <StatCard title="Mentor" value={displayScores.mentor || 0} icon={BarChart3} />
+            <StatCard title="Academics" value={displayScores.academics || 0} icon={BarChart3} />
+            <StatCard title="HOD" value={displayScores.hod || 0} icon={BarChart3} />
           </div>
           <div className="mb-8">
             <div className="flex gap-4 flex-wrap">
@@ -344,6 +383,16 @@ const Dashboard = () => {
                         >
                           <Download className="w-4 h-4 mr-1" />
                           Download PDF
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            if (record.timestamp) navigate(`/dashboard/results/${encodeURIComponent(record.timestamp)}`);
+                          }}
+                        >
+                          <Eye className="w-4 h-4 mr-1" />
+                          View Results
                         </Button>
                         <Button
                           variant="outline"
