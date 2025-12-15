@@ -12,9 +12,27 @@ docker-compose.yml
 templates
 uploads
 *.docx
+*.xlsx
+*.xls
+
+# Build artifacts
+*.timestamp-*.mjs
+vite.config.ts.timestamp-*
+
+# Generated files
+*filled_template*
+debug_*
 
 # macOS stuff
 .DS_Store
 
 # Windows junk
 Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# IDE
+.vscode
+.idea
