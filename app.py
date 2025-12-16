@@ -478,7 +478,7 @@ def processing(excel_path, staffname, template_path, template_file):
             selected_col = next((col for col in possible_names if col in df_journal.columns), None)
             if selected_col:
                 df_journal[selected_col] = df_journal[selected_col].ffill()
-                df_filtered = df_journal[df_journal[selected_col].astype(str).str.strip() == staffname]
+                df_filtered = df_journal[df_journal[selected_col].astype(str).str.strip().str.lower() == staffname.lower()]
             else:
                 df_filtered = pd.DataFrame()
         except Exception as e:
@@ -555,7 +555,7 @@ def processing(excel_path, staffname, template_path, template_file):
             selected_col = next((col for col in possible_names if col in df_bookpub.columns), None)
             if selected_col:
                 df_bookpub[selected_col] = df_bookpub[selected_col].ffill()
-                df_filtered = df_bookpub[df_bookpub[selected_col].astype(str).str.strip() == staffname]
+                df_filtered = df_bookpub[df_bookpub[selected_col].astype(str).str.strip().str.lower() == staffname.lower()]
             else:
                 df_filtered = pd.DataFrame()
         except Exception as e:
@@ -608,7 +608,7 @@ def processing(excel_path, staffname, template_path, template_file):
             selected_col = next((col for col in possible_names if col in df_conference.columns), None)
             if selected_col:
                 df_conference[selected_col] = df_conference[selected_col].ffill()
-                df_filtered = df_conference[df_conference[selected_col].astype(str).str.strip() == staffname]
+                df_filtered = df_conference[df_conference[selected_col].astype(str).str.strip().str.lower() == staffname.lower()]
             else:
                 df_filtered = pd.DataFrame()
         except Exception as e:
@@ -681,7 +681,7 @@ def processing(excel_path, staffname, template_path, template_file):
             # ensure column names tolerant
             if "Faculty Name" in df_research.columns:
                 df_research["Faculty Name"] = df_research["Faculty Name"].ffill()
-                df_filtered = df_research[df_research["Faculty Name"].astype(str).str.strip() == staffname]
+                df_filtered = df_research[df_research["Faculty Name"].astype(str).str.strip().str.lower() == staffname.lower()]
             else:
                 df_filtered = pd.DataFrame()
         except Exception as e:
@@ -799,7 +799,7 @@ def processing(excel_path, staffname, template_path, template_file):
             selected_col = next((c for c in possible_name_cols if c in df_patent.columns), None)
             if selected_col:
                 df_patent[selected_col] = df_patent[selected_col].ffill()
-                df_filtered = df_patent[df_patent[selected_col].astype(str).str.strip() == staffname]
+                df_filtered = df_patent[df_patent[selected_col].astype(str).str.strip().str.lower() == staffname.lower()]
             else:
                 df_filtered = pd.DataFrame()
         except Exception as e:
@@ -866,7 +866,7 @@ def processing(excel_path, staffname, template_path, template_file):
             selected_col = next((col for col in possible_names if col in df_workshop.columns), None)
             if selected_col:
                 df_workshop[selected_col] = df_workshop[selected_col].ffill()
-                df_filtered = df_workshop[df_workshop[selected_col].astype(str).str.strip() == staffname]
+                df_filtered = df_workshop[df_workshop[selected_col].astype(str).str.strip().str.lower() == staffname.lower()]
             else:
                 df_filtered = pd.DataFrame()
         except Exception as e:
@@ -920,12 +920,11 @@ def processing(excel_path, staffname, template_path, template_file):
         try:
             df_develop = pd.read_excel(excel_path, sheet_name="Faculty Internship", skiprows=skiprows)
             df_develop.columns = df_develop.columns.str.strip()
-            # possible column names
             possible_names = ["Faculty Name", "Faculty name", "Name of the Faculty", "Name", "Faculty"]
             selectedcol = next((col for col in possible_names if col in df_develop.columns), None)
             if selectedcol:
                 df_develop[selectedcol] = df_develop[selectedcol].ffill()
-                df_filtered = df_develop[df_develop[selectedcol].astype(str).str.strip() == staffname]
+                df_filtered = df_develop[df_develop[selectedcol].astype(str).str.strip().str.lower() == staffname.lower()]
             else:
                 df_filtered = pd.DataFrame()
         except Exception as e:
@@ -980,7 +979,7 @@ def processing(excel_path, staffname, template_path, template_file):
             selectedcol = next((col for col in possible_names if col in df_mooc.columns), None)
             if selectedcol:
                 df_mooc[selectedcol] = df_mooc[selectedcol].ffill()
-                df_filtered = df_mooc[df_mooc[selectedcol].astype(str).str.strip() == staffname]
+                df_filtered = df_mooc[df_mooc[selectedcol].astype(str).str.strip().str.lower() == staffname.lower()]
             else:
                 df_filtered = pd.DataFrame()
         except Exception as e:
@@ -1037,7 +1036,7 @@ def processing(excel_path, staffname, template_path, template_file):
             selectedcol = next((col for col in possible_names if col in df_mou.columns), None)
             if selectedcol:
                 df_mou[selectedcol] = df_mou[selectedcol].ffill()
-                df_filtered = df_mou[df_mou[selectedcol].astype(str).str.strip() == staffname]
+                df_filtered = df_mou[df_mou[selectedcol].astype(str).str.strip().str.lower() == staffname.lower()]
             else:
                 df_filtered = pd.DataFrame()
         except Exception as e:
@@ -1151,7 +1150,7 @@ def processing(excel_path, staffname, template_path, template_file):
             df_experts.columns = df_experts.columns.str.strip()
             if "Faculty Name" in df_experts.columns:
                 df_experts["Faculty Name"] = df_experts["Faculty Name"].ffill()
-                df_filtered = df_experts[df_experts["Faculty Name"].astype(str).str.strip() == staffname]
+                df_filtered = df_experts[df_experts["Faculty Name"].astype(str).str.strip().str.lower() == staffname.lower()]
             else:
                 df_filtered = pd.DataFrame()
         except Exception as e:
@@ -1206,7 +1205,7 @@ def processing(excel_path, staffname, template_path, template_file):
             df_project.columns = df_project.columns.str.strip()
             if "Faculty Name" in df_project.columns:
                 df_project["Faculty Name"] = df_project["Faculty Name"].ffill()
-                df_filtered = df_project[df_project["Faculty Name"].astype(str).str.strip() == staffname]
+                df_filtered = df_project[df_project["Faculty Name"].astype(str).str.strip().str.lower() == staffname.lower()]
             else:
                 df_filtered = pd.DataFrame()
         except Exception as e:

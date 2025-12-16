@@ -1,20 +1,20 @@
 [
   {
-    "name": "Keren Lois Daniel",
+    "name": "Ananthi",
     "designation": "Assistant Professor",
     "dept": "csbs",
     "empid": "5",
-    "research": 16,
-    "selfm": 9,
+    "research": 8,
+    "selfm": 6,
     "mentor": 0,
-    "academics": 5,
+    "academics": 18,
     "hod": 0,
-    "total_score": 30,
-    "timestamp": "2025-11-20T18:19:10.923514"
+    "total_score": 32,
+    "timestamp": "2025-12-16T22:13:27.614209"
   },
   {
     "name": "Keren Lois Daniel",
-    "designation": "Assistant Professor",
+    "designation": "Associate Professor",
     "dept": "csbs",
     "empid": "5",
     "research": 16,
@@ -23,71 +23,6 @@
     "academics": 18,
     "hod": 0,
     "total_score": 43,
-    "timestamp": "2025-12-10T21:39:35.296654"
-  },
-  {
-    "name": "Keren Lois Daniel",
-    "designation": "Assistant Professor",
-    "dept": "csbs",
-    "empid": "5",
-    "research": 16,
-    "selfm": 9,
-    "mentor": 0,
-    "academics": 18,
-    "hod": 0,
-    "total_score": 43,
-    "timestamp": "2025-12-11T23:02:33.639273"
-  },
-  {
-    "name": "Keren Lois Daniel",
-    "designation": "Assistant Professor",
-    "dept": "csbs",
-    "empid": "5",
-    "research": 16,
-    "selfm": 9,
-    "mentor": 0,
-    "academics": 18,
-    "hod": 0,
-    "total_score": 43,
-    "timestamp": "2025-12-12T08:21:31.401951"
-  },
-  {
-    "name": "Keren Lois Daniel",
-    "designation": "Assistant Professor",
-    "dept": "csbs",
-    "empid": "5",
-    "research": 16,
-    "selfm": 9,
-    "mentor": 0,
-    "academics": 18,
-    "hod": 0,
-    "total_score": 43,
-    "timestamp": "2025-12-12T13:00:22.477300"
-  },
-  {
-    "name": "Keren Lois Daniel",
-    "designation": "Assistant Professor",
-    "dept": "csbs",
-    "empid": "5",
-    "research": 16,
-    "selfm": 9,
-    "mentor": 0,
-    "academics": 18,
-    "hod": 0,
-    "total_score": 43,
-    "timestamp": "2025-12-16T20:39:01.236670"
-  },
-  {
-    "name": "Keren Lois Daniel",
-    "designation": "Assistant Professor",
-    "dept": "csbs",
-    "empid": "5",
-    "research": 16,
-    "selfm": 9,
-    "mentor": 0,
-    "academics": 18,
-    "hod": 0,
-    "total_score": 43,
-    "timestamp": "2025-12-16T21:01:02.445410"
+    "timestamp": "2025-12-16T22:14:17.179662"
   }
 ]
