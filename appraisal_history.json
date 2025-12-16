@@ -63,5 +63,18 @@
     "hod": 0,
     "total_score": 43,
     "timestamp": "2025-12-12T13:00:22.477300"
+  },
+  {
+    "name": "Keren Lois Daniel",
+    "designation": "Assistant Professor",
+    "dept": "csbs",
+    "empid": "5",
+    "research": 16,
+    "selfm": 9,
+    "mentor": 0,
+    "academics": 18,
+    "hod": 0,
+    "total_score": 43,
+    "timestamp": "2025-12-16T20:39:01.236670"
   }
 ]

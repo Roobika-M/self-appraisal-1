@@ -388,7 +388,7 @@ const Dashboard = () => {
                           variant="outline"
                           size="sm"
                           onClick={async () => {
-                            const res = await fetch("http://localhost:5000/download/docx", {
+                            const res = await fetch("/api/download/docx", {
                               method: "GET",
                               credentials: "include",
                             });
@@ -411,7 +411,7 @@ const Dashboard = () => {
                           variant="outline"
                           size="sm"
                           onClick={async () => {
-                            const res = await fetch("http://localhost:5000/download/corrective", {
+                            const res = await fetch("/api/download/corrective", {
                               method: "GET",
                               credentials: "include",
                             });
@@ -435,11 +435,13 @@ const Dashboard = () => {
                           size="sm"
                           onClick={async () => {
                             if (record.timestamp) {
-                              await fetch(`http://localhost:5000/history/${record.timestamp}`, {
+                              const res = await fetch(`/api/history/${record.timestamp}`, {
                                 method: "DELETE",
                                 credentials: "include",
                               });
-                              await fetchData();
+                              if (res.ok) {
+                                await fetchData();
+                              }
                             }
                           }}
                         >
