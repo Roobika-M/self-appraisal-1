@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { GraduationCap, LogOut } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { GraduationCap, LogOut } from 'lucide-react';
 
 const Header = ({ onLogout }: { onLogout: () => void }) => {
   return (

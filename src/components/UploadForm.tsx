@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { FileText, Upload, AlertCircle } from "lucide-react";
+import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { FileText, Upload, AlertCircle } from 'lucide-react';
 
 interface UploadFormProps {
-  onComplete: (data: any) => void;
+  onComplete: (data: Record<string, unknown>) => void;
   onCancel: () => void;
 }
 
@@ -16,16 +16,16 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from '@/components/ui/select';
 
 const UploadForm = ({ onComplete, onCancel }: UploadFormProps) => {
   const [formData, setFormData] = useState({
-    facultyName: "",
-    employeeId: "",
-    department: "",
-    designation: "",
-    email: "",
-    academicYear: "2024-25"
+    facultyName: '',
+    employeeId: '',
+    department: '',
+    designation: '',
+    email: '',
+    academicYear: '2024-25',
   });
   const [selectedExcelFile, setSelectedExcelFile] = useState<File | null>(null);
   const [selectedWordFile, setSelectedWordFile] = useState<File | null>(null);
@@ -34,7 +34,7 @@ const UploadForm = ({ onComplete, onCancel }: UploadFormProps) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -45,9 +45,9 @@ const UploadForm = ({ onComplete, onCancel }: UploadFormProps) => {
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
+    if (e.type === 'dragenter' || e.type === 'dragover') {
       setDragActive(true);
-    } else if (e.type === "dragleave") {
+    } else if (e.type === 'dragleave') {
       setDragActive(false);
     }
   };
@@ -74,36 +74,36 @@ const UploadForm = ({ onComplete, onCancel }: UploadFormProps) => {
     }
   };
 
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setError('');
     if (!selectedExcelFile || !selectedWordFile) {
-      setError("Please select both Excel and Word template files.");
+      setError('Please select both Excel and Word template files.');
       return;
     }
     try {
       const data = new FormData();
-      data.append("name", formData.facultyName);
-      data.append("designation", formData.designation);
-      data.append("department", formData.department);
-      data.append("employee_id", formData.employeeId);
-      data.append("excel_file", selectedExcelFile);
-      data.append("word_file", selectedWordFile);
+      data.append('name', formData.facultyName);
+      data.append('designation', formData.designation);
+      data.append('department', formData.department);
+      data.append('employee_id', formData.employeeId);
+      data.append('excel_file', selectedExcelFile);
+      data.append('word_file', selectedWordFile);
 
-      const res = await fetch("/api/upload", {
-        method: "POST",
+      const res = await fetch('/api/upload', {
+        method: 'POST',
         body: data,
-        credentials: "include",
+        credentials: 'include',
       });
       if (res.redirected || res.ok) {
         onComplete({ ...formData, excelFile: selectedExcelFile, wordFile: selectedWordFile });
       } else {
-        setError("Upload failed. Please check your files and try again.");
+        setError('Upload failed. Please check your files and try again.');
       }
     } catch (err) {
-      setError("Unable to connect to server.");
+      setError('Unable to connect to server.');
     }
   };
 
@@ -160,21 +160,21 @@ const UploadForm = ({ onComplete, onCancel }: UploadFormProps) => {
                 />
               </div>
               <div className="space-y-2">
-              <Label htmlFor="designation">Designation</Label>
-              <Select
-                onValueChange={(value) => handleSelectChange("designation", value)}
-                value={formData.designation}
-              >
-                <SelectTrigger id="designation" className="bg-muted/30">
-                  <SelectValue placeholder="Select designation" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Professor">Professor</SelectItem>
-                  <SelectItem value="Assistant Professor">Assistant Professor</SelectItem>
-                  <SelectItem value="Associate Professor">Associate Professor</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+                <Label htmlFor="designation">Designation</Label>
+                <Select
+                  onValueChange={(value) => handleSelectChange('designation', value)}
+                  value={formData.designation}
+                >
+                  <SelectTrigger id="designation" className="bg-muted/30">
+                    <SelectValue placeholder="Select designation" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Professor">Professor</SelectItem>
+                    <SelectItem value="Assistant Professor">Assistant Professor</SelectItem>
+                    <SelectItem value="Associate Professor">Associate Professor</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -207,7 +207,7 @@ const UploadForm = ({ onComplete, onCancel }: UploadFormProps) => {
               <CardContent>
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                    dragActive ? "border-academic bg-academic/5" : "border-muted-foreground/25"
+                    dragActive ? 'border-academic bg-academic/5' : 'border-muted-foreground/25'
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -241,36 +241,42 @@ const UploadForm = ({ onComplete, onCancel }: UploadFormProps) => {
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => document.getElementById("excel-file-upload")?.click()}
+                      onClick={() => document.getElementById('excel-file-upload')?.click()}
                     >
                       <Upload className="w-4 h-4 mr-2" />
                       Choose Excel File
                     </Button>
-                {/* Word Template Upload Section */}
-                <div className="mt-6">
-                  <Label htmlFor="word-file-upload">Word Template File <span className="text-destructive">*</span></Label>
-                  <div className="flex items-center gap-4 mt-2">
-                    <input
-                      type="file"
-                      accept=".docx"
-                      onChange={handleWordFileSelect}
-                      className="hidden"
-                      id="word-file-upload"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => document.getElementById("word-file-upload")?.click()}
-                    >
-                      <Upload className="w-4 h-4 mr-2" />
-                      Choose Word File
-                    </Button>
-                    {selectedWordFile && (
-                      <span className="ml-2 text-sm text-foreground">{selectedWordFile.name}</span>
-                    )}
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1">Supported format: .docx</div>
-                </div>
+                    {/* Word Template Upload Section */}
+                    <div className="mt-6">
+                      <Label htmlFor="word-file-upload">
+                        Word Template File <span className="text-destructive">*</span>
+                      </Label>
+                      <div className="flex items-center gap-4 mt-2">
+                        <input
+                          type="file"
+                          accept=".docx"
+                          onChange={handleWordFileSelect}
+                          className="hidden"
+                          id="word-file-upload"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => document.getElementById('word-file-upload')?.click()}
+                        >
+                          <Upload className="w-4 h-4 mr-2" />
+                          Choose Word File
+                        </Button>
+                        {selectedWordFile && (
+                          <span className="ml-2 text-sm text-foreground">
+                            {selectedWordFile.name}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        Supported format: .docx
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -283,8 +289,13 @@ const UploadForm = ({ onComplete, onCancel }: UploadFormProps) => {
                       <ul className="text-muted-foreground space-y-1 ml-4">
                         <li>• Supported formats: .xlsx, .xls, .csv</li>
                         <li>• Maximum file size: 10MB</li>
-                        <li>• The Excel file should contain faculty performance data including teaching, research, and service activities</li>
-                        <li>• Our system will automatically process and calculate appraisal scores</li>
+                        <li>
+                          • The Excel file should contain faculty performance data including
+                          teaching, research, and service activities
+                        </li>
+                        <li>
+                          • Our system will automatically process and calculate appraisal scores
+                        </li>
                       </ul>
                     </div>
                   </div>
@@ -299,7 +310,11 @@ const UploadForm = ({ onComplete, onCancel }: UploadFormProps) => {
                 <Button type="button" variant="outline" onClick={onCancel}>
                   Cancel
                 </Button>
-                <Button type="submit" variant="academic" disabled={!selectedExcelFile || !selectedWordFile}>
+                <Button
+                  type="submit"
+                  variant="academic"
+                  disabled={!selectedExcelFile || !selectedWordFile}
+                >
                   <Upload className="w-4 h-4 mr-2" />
                   Upload & Process
                 </Button>

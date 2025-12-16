@@ -1,24 +1,24 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { LucideIcon } from "lucide-react";
+import { Card, CardContent } from '@/components/ui/card';
+import { LucideIcon } from 'lucide-react';
 
 interface StatCardProps {
   title: string;
   value: string | number;
   icon: LucideIcon;
-  variant?: "default" | "success" | "warning" | "processing";
+  variant?: 'default' | 'success' | 'warning' | 'processing';
 }
 
-const StatCard = ({ title, value, icon: Icon, variant = "default" }: StatCardProps) => {
+const StatCard = ({ title, value, icon: Icon, variant = 'default' }: StatCardProps) => {
   const getVariantStyles = () => {
     switch (variant) {
-      case "success":
-        return "text-success";
-      case "warning":
-        return "text-warning";
-      case "processing":
-        return "text-processing";
+      case 'success':
+        return 'text-success';
+      case 'warning':
+        return 'text-warning';
+      case 'processing':
+        return 'text-processing';
       default:
-        return "text-academic";
+        return 'text-academic';
     }
   };
 

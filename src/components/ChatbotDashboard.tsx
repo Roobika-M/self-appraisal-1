@@ -1,45 +1,45 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Trash2, Send } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Trash2, Send } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 interface Message {
   id: string;
   text: string;
-  sender: "user" | "bot";
+  sender: 'user' | 'bot';
   timestamp: Date;
 }
 
 const ChatbotDashboard = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
-      id: "1",
-      text: "Hello! How can I help you today?",
-      sender: "bot",
+      id: '1',
+      text: 'Hello! How can I help you today?',
+      sender: 'bot',
       timestamp: new Date(),
     },
   ]);
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState('');
 
   const handleSend = () => {
     if (input.trim()) {
       const newMessage: Message = {
         id: Date.now().toString(),
         text: input,
-        sender: "user",
+        sender: 'user',
         timestamp: new Date(),
       };
       setMessages([...messages, newMessage]);
-      setInput("");
+      setInput('');
 
       // Simulate bot response
       setTimeout(() => {
         const botMessage: Message = {
           id: (Date.now() + 1).toString(),
           text: "Thank you for your message. I'm processing your request.",
-          sender: "bot",
+          sender: 'bot',
           timestamp: new Date(),
         };
         setMessages((prev) => [...prev, botMessage]);
@@ -81,15 +81,11 @@ const ChatbotDashboard = () => {
               {messages.map((message) => (
                 <div
                   key={message.id}
-                  className={`flex ${
-                    message.sender === "user" ? "justify-end" : "justify-start"
-                  }`}
+                  className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
                     className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                      message.sender === "user"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted"
+                      message.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'
                     }`}
                   >
                     <p className="text-sm">{message.text}</p>
@@ -105,7 +101,7 @@ const ChatbotDashboard = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Type your message..."
-                onKeyPress={(e) => e.key === "Enter" && handleSend()}
+                onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                 className="flex-1"
               />
               <Button onClick={handleSend} size="sm">

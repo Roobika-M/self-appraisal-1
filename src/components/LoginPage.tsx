@@ -1,39 +1,41 @@
-import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { GraduationCap } from "lucide-react";
+import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { GraduationCap } from 'lucide-react';
 
 const LoginPage = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
-  const from = (location.state as any)?.from?.pathname || "/dashboard";
+  const from = (location.state as { from?: { pathname?: string } })?.from?.pathname || '/dashboard';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setError('');
     try {
-      const res = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
-        credentials: "include",
+        credentials: 'include',
       });
       if (res.redirected || res.ok) {
         try {
-          sessionStorage.setItem("isLoggedIn", JSON.stringify(true));
-        } catch {}
+          sessionStorage.setItem('isLoggedIn', JSON.stringify(true));
+        } catch {
+          // Ignore storage errors
+        }
         navigate(from, { replace: true });
       } else {
-        setError("Login failed. Please check your credentials.");
+        setError('Login failed. Please check your credentials.');
       }
     } catch (err) {
-      setError("Unable to connect to server.");
+      setError('Unable to connect to server.');
     }
   };
 
@@ -74,7 +76,7 @@ const LoginPage = () => {
                   placeholder="Enter your username"
                   className="bg-muted/50"
                   value={username}
-                  onChange={e => setUsername(e.target.value)}
+                  onChange={(e) => setUsername(e.target.value)}
                   required
                 />
               </div>
@@ -86,7 +88,7 @@ const LoginPage = () => {
                   placeholder="Enter your password"
                   className="bg-muted/50"
                   value={password}
-                  onChange={e => setPassword(e.target.value)}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                 />
               </div>
@@ -95,8 +97,6 @@ const LoginPage = () => {
                 Sign In
               </Button>
             </form>
-
-            
           </CardContent>
         </Card>
 

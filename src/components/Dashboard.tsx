@@ -1,12 +1,23 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Users, Clock, CheckCircle, BarChart3, Plus, Upload, Eye, Download, Trash2, ArrowLeft } from "lucide-react";
-import StatCard from "./StatCard";
-import Header from "./Header";
-import UploadForm from "./UploadForm";
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+  Users,
+  Clock,
+  CheckCircle,
+  BarChart3,
+  Plus,
+  Upload,
+  Eye,
+  Download,
+  Trash2,
+  ArrowLeft,
+} from 'lucide-react';
+import StatCard from './StatCard';
+import Header from './Header';
+import UploadForm from './UploadForm';
 
 interface FacultyRecord {
   id: string;
@@ -16,7 +27,7 @@ interface FacultyRecord {
   designation: string;
   academicYear: string;
   uploadDate: string;
-  status: "completed" | "processing" | "pending";
+  status: 'completed' | 'processing' | 'pending';
   timestamp: string;
   scores: {
     teaching: number;
@@ -33,51 +44,59 @@ const Dashboard = () => {
   const location = useLocation();
   const handleLogout = () => {
     try {
-      sessionStorage.removeItem("isLoggedIn");
-    } catch {}
-    navigate("/login", { replace: true });
+      sessionStorage.removeItem('isLoggedIn');
+    } catch {
+      // Ignore storage errors
+    }
+    navigate('/login', { replace: true });
   };
-  const currentView: "dashboard" | "upload" | "results" = location.pathname.includes("/upload")
-    ? "upload"
-    : location.pathname.includes("/results")
-    ? "results"
-    : "dashboard";
+  const currentView: 'dashboard' | 'upload' | 'results' = location.pathname.includes('/upload')
+    ? 'upload'
+    : location.pathname.includes('/results')
+    ? 'results'
+    : 'dashboard';
   const [appraisalHistory, setAppraisalHistory] = useState<FacultyRecord[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/download_path", {
-        method: "GET",
-        credentials: "include",
+      const res = await fetch('/api/download_path', {
+        method: 'GET',
+        credentials: 'include',
       });
       if (res.ok) {
         const data = await res.json();
-        const mappedData = data.map((item: any, index: number) => ({
+        const mappedData = data.map((item: Record<string, unknown>, index: number) => ({
           id: (index + 1).toString(),
-          name: item.name || "",
-          employeeId: item.emp_id || "",
-          department: item.department || "",
-          designation: item.designation || "",
-          academicYear: "2024-25",
+          name: item.name || '',
+          employeeId: item.emp_id || '',
+          department: item.department || '',
+          designation: item.designation || '',
+          academicYear: '2024-25',
           uploadDate: new Date().toLocaleDateString(),
-          status: "completed",
-          timestamp: item.timestamp || "",
+          status: 'completed',
+          timestamp: item.timestamp || '',
           scores: {
             teaching: item.academics || 0,
             research: item.research || 0,
             service: item.selfm || 0,
             mentor: item.mentor || 0,
             hod: item.hod || 0,
-            overall: (item.academics || 0) + (item.research || 0) + (item.selfm || 0) + (item.mentor || 0) + (item.hod || 0)
-          }
+            overall:
+              (item.academics || 0) +
+              (item.research || 0) +
+              (item.selfm || 0) +
+              (item.mentor || 0) +
+              (item.hod || 0),
+          },
         }));
         setAppraisalHistory(mappedData);
       } else {
         setAppraisalHistory([]);
       }
     } catch {
+      // Error fetching data
       setAppraisalHistory([]);
     }
     setLoading(false);
@@ -89,10 +108,10 @@ const Dashboard = () => {
   }, []);
 
   // current view is driven by URL (see navigate calls below)
-  const [latestScores, setLatestScores] = useState<any | null>(null);
+  const [latestScores, setLatestScores] = useState<Record<string, unknown> | null>(null);
   const params = useParams();
   const resultTimestamp = params?.id;
-  const [displayScores, setDisplayScores] = useState<any | null>(null);
+  const [displayScores, setDisplayScores] = useState<Record<string, unknown> | null>(null);
   // determine which scores to show on results page: param -> appraisalHistory -> latestScores -> fetch
   useEffect(() => {
     const findByTimestamp = async (ts: string | undefined) => {
@@ -113,16 +132,18 @@ const Dashboard = () => {
         return;
       }
       try {
-        const res = await fetch("/api/download_path", { method: "GET", credentials: "include" });
+        const res = await fetch('/api/download_path', { method: 'GET', credentials: 'include' });
         if (res.ok) {
           const list = await res.json();
-          const matched = list.find((it: any) => it.timestamp === ts);
+          const matched = list.find((it: Record<string, unknown>) => it.timestamp === ts);
           if (matched) {
             setDisplayScores(matched);
             return;
           }
         }
-      } catch {}
+      } catch {
+        // Error fetching data
+      }
       setDisplayScores(latestScores);
     };
     findByTimestamp(resultTimestamp);
@@ -130,45 +151,50 @@ const Dashboard = () => {
 
   const stats = {
     totalUploads: appraisalHistory.length,
-    processing: appraisalHistory.filter(r => r.status === "processing").length,
-    completed: appraisalHistory.filter(r => r.status === "completed").length,
-    averageScore: appraisalHistory.length > 0
-      ? Math.round(appraisalHistory.reduce((sum, r) => sum + r.scores.overall, 0) / appraisalHistory.length * 10) / 10
-      : 0
+    processing: appraisalHistory.filter((r) => r.status === 'processing').length,
+    completed: appraisalHistory.filter((r) => r.status === 'completed').length,
+    averageScore:
+      appraisalHistory.length > 0
+        ? Math.round(
+            (appraisalHistory.reduce((sum, r) => sum + r.scores.overall, 0) /
+              appraisalHistory.length) *
+              10,
+          ) / 10
+        : 0,
   };
 
   const handleNewUpload = () => {
-    navigate("/dashboard/upload");
+    navigate('/dashboard/upload');
   };
 
   const handleBackToDashboard = () => {
-    navigate("/dashboard");
+    navigate('/dashboard');
   };
 
-  const handleUploadComplete = async (data: any) => {
+  const handleUploadComplete = async (data: Record<string, unknown>) => {
     // After upload, fetch scores from backend and show results page
     try {
-      const res = await fetch("/api/download_path", {
-        method: "GET",
-        credentials: "include",
+      const res = await fetch('/api/download_path', {
+        method: 'GET',
+        credentials: 'include',
       });
       if (res.ok) {
         const scores = await res.json();
         const last = scores.length > 0 ? scores[scores.length - 1] : null;
         setLatestScores(last);
-        const ts = last?.timestamp || "";
+        const ts = last?.timestamp || '';
         navigate(`/dashboard/results/${encodeURIComponent(ts)}`);
       } else {
         setLatestScores(null);
-        navigate("/dashboard");
+        navigate('/dashboard');
       }
     } catch {
       setLatestScores(null);
-      navigate("/dashboard");
+      navigate('/dashboard');
     }
   };
 
-  if (currentView === "upload") {
+  if (currentView === 'upload') {
     return (
       <div className="min-h-screen bg-background">
         <Header onLogout={handleLogout} />
@@ -189,7 +215,7 @@ const Dashboard = () => {
     );
   }
 
-  if (currentView === "results" && displayScores) {
+  if (currentView === 'results' && displayScores) {
     return (
       <div className="min-h-screen bg-background">
         <Header onLogout={handleLogout} />
@@ -210,16 +236,16 @@ const Dashboard = () => {
               <Button
                 variant="outline"
                 onClick={async () => {
-                  const res = await fetch("/api/download/pdf", {
-                    method: "GET",
-                    credentials: "include",
+                  const res = await fetch('/api/download/pdf', {
+                    method: 'GET',
+                    credentials: 'include',
                   });
                   if (res.ok) {
                     const blob = await res.blob();
                     const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement("a");
+                    const a = document.createElement('a');
                     a.href = url;
-                    a.download = "filled_template.pdf";
+                    a.download = 'filled_template.pdf';
                     document.body.appendChild(a);
                     a.click();
                     a.remove();
@@ -232,16 +258,16 @@ const Dashboard = () => {
               <Button
                 variant="outline"
                 onClick={async () => {
-                  const res = await fetch("/api/download/docx", {
-                    method: "GET",
-                    credentials: "include",
+                  const res = await fetch('/api/download/docx', {
+                    method: 'GET',
+                    credentials: 'include',
                   });
                   if (res.ok) {
                     const blob = await res.blob();
                     const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement("a");
+                    const a = document.createElement('a');
                     a.href = url;
-                    a.download = "filled_template.docx";
+                    a.download = 'filled_template.docx';
                     document.body.appendChild(a);
                     a.click();
                     a.remove();
@@ -254,16 +280,16 @@ const Dashboard = () => {
               <Button
                 variant="outline"
                 onClick={async () => {
-                  const res = await fetch("/api/download/corrective", {
-                    method: "GET",
-                    credentials: "include",
+                  const res = await fetch('/api/download/corrective', {
+                    method: 'GET',
+                    credentials: 'include',
                   });
                   if (res.ok) {
                     const blob = await res.blob();
                     const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement("a");
+                    const a = document.createElement('a');
                     a.href = url;
-                    a.download = "corrective_action_report.docx";
+                    a.download = 'corrective_action_report.docx';
                     document.body.appendChild(a);
                     a.click();
                     a.remove();
@@ -286,7 +312,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header onLogout={handleLogout} />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -296,12 +322,7 @@ const Dashboard = () => {
             icon={Users}
             variant="default"
           />
-          <StatCard
-            title="Processing"
-            value={stats.processing}
-            icon={Clock}
-            variant="processing"
-          />
+          <StatCard title="Processing" value={stats.processing} icon={Clock} variant="processing" />
           <StatCard
             title="Completed"
             value={stats.completed}
@@ -352,12 +373,13 @@ const Dashboard = () => {
                       <div className="space-y-1">
                         <div className="flex items-center gap-3">
                           <h3 className="font-medium text-foreground">{record.name}</h3>
-                          <Badge variant={record.status === "completed" ? "default" : "secondary"}>
-                            {record.status === "completed" ? "Completed" : "Processing"}
+                          <Badge variant={record.status === 'completed' ? 'default' : 'secondary'}>
+                            {record.status === 'completed' ? 'Completed' : 'Processing'}
                           </Badge>
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          ID: {record.employeeId} • {record.designation} • {record.academicYear} • {record.uploadDate}
+                          ID: {record.employeeId} • {record.designation} • {record.academicYear} •{' '}
+                          {record.uploadDate}
                         </p>
                       </div>
                       <div className="flex gap-2 flex-wrap">
@@ -365,16 +387,16 @@ const Dashboard = () => {
                           variant="outline"
                           size="sm"
                           onClick={async () => {
-                            const res = await fetch("/api/download/pdf", {
-                              method: "GET",
-                              credentials: "include",
+                            const res = await fetch('/api/download/pdf', {
+                              method: 'GET',
+                              credentials: 'include',
                             });
                             if (res.ok) {
                               const blob = await res.blob();
                               const url = window.URL.createObjectURL(blob);
-                              const a = document.createElement("a");
+                              const a = document.createElement('a');
                               a.href = url;
-                              a.download = "filled_template.pdf";
+                              a.download = 'filled_template.pdf';
                               document.body.appendChild(a);
                               a.click();
                               a.remove();
@@ -388,16 +410,16 @@ const Dashboard = () => {
                           variant="outline"
                           size="sm"
                           onClick={async () => {
-                            const res = await fetch("/api/download/docx", {
-                              method: "GET",
-                              credentials: "include",
+                            const res = await fetch('/api/download/docx', {
+                              method: 'GET',
+                              credentials: 'include',
                             });
                             if (res.ok) {
                               const blob = await res.blob();
                               const url = window.URL.createObjectURL(blob);
-                              const a = document.createElement("a");
+                              const a = document.createElement('a');
                               a.href = url;
-                              a.download = "filled_template.docx";
+                              a.download = 'filled_template.docx';
                               document.body.appendChild(a);
                               a.click();
                               a.remove();
@@ -411,16 +433,16 @@ const Dashboard = () => {
                           variant="outline"
                           size="sm"
                           onClick={async () => {
-                            const res = await fetch("/api/download/corrective", {
-                              method: "GET",
-                              credentials: "include",
+                            const res = await fetch('/api/download/corrective', {
+                              method: 'GET',
+                              credentials: 'include',
                             });
                             if (res.ok) {
                               const blob = await res.blob();
                               const url = window.URL.createObjectURL(blob);
-                              const a = document.createElement("a");
+                              const a = document.createElement('a');
                               a.href = url;
-                              a.download = "corrective_action_report.docx";
+                              a.download = 'corrective_action_report.docx';
                               document.body.appendChild(a);
                               a.click();
                               a.remove();
@@ -436,8 +458,8 @@ const Dashboard = () => {
                           onClick={async () => {
                             if (record.timestamp) {
                               const res = await fetch(`/api/history/${record.timestamp}`, {
-                                method: "DELETE",
-                                credentials: "include",
+                                method: 'DELETE',
+                                credentials: 'include',
                               });
                               if (res.ok) {
                                 await fetchData();
@@ -450,7 +472,7 @@ const Dashboard = () => {
                         </Button>
                       </div>
                     </div>
-                    {record.status === "completed" && (
+                    {record.status === 'completed' && (
                       <div className="grid grid-cols-5 gap-4 pt-2 border-t">
                         <div>
                           <p className="text-sm text-muted-foreground">Academics</p>

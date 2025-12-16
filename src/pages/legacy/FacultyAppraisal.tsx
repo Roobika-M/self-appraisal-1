@@ -5,7 +5,7 @@ import Dashboard from '@/components/Dashboard';
 const FacultyAppraisal = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     try {
-      const saved = sessionStorage.getItem("isLoggedIn");
+      const saved = sessionStorage.getItem('isLoggedIn');
       return saved ? JSON.parse(saved) : false;
     } catch {
       return false;
@@ -14,9 +14,11 @@ const FacultyAppraisal = () => {
 
   useEffect(() => {
     try {
-      if (isLoggedIn) sessionStorage.setItem("isLoggedIn", JSON.stringify(true));
-      else sessionStorage.removeItem("isLoggedIn");
-    } catch {}
+      if (isLoggedIn) sessionStorage.setItem('isLoggedIn', JSON.stringify(true));
+      else sessionStorage.removeItem('isLoggedIn');
+    } catch {
+      // Ignore storage errors
+    }
   }, [isLoggedIn]);
 
   const handleLogin = () => {
@@ -26,9 +28,11 @@ const FacultyAppraisal = () => {
   const handleLogout = () => {
     setIsLoggedIn(false);
     try {
-      sessionStorage.removeItem("isLoggedIn");
-      localStorage.removeItem("dashboardView");
-    } catch {}
+      sessionStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('dashboardView');
+    } catch {
+      // Ignore storage errors
+    }
   };
 
   if (!isLoggedIn) {

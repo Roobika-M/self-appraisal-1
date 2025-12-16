@@ -21,6 +21,7 @@ A full-stack web application for managing faculty appraisals with automated docu
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - React 18
 - TypeScript
 - Vite
@@ -31,6 +32,7 @@ A full-stack web application for managing faculty appraisals with automated docu
 - Recharts
 
 ### Backend
+
 - Flask
 - Flask-CORS
 - pandas
@@ -42,28 +44,32 @@ A full-stack web application for managing faculty appraisals with automated docu
 ### Local Development Setup
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd selfapp
    ```
 
 2. **Install frontend dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Install backend dependencies**
+
    ```bash
    pip install -r requirements.txt
    ```
 
 4. **Environment Setup**
-   
+
    Copy the example environment file:
+
    ```bash
    cp .env.example .env
    ```
-   
+
    Edit `.env` with your configuration if needed.
 
 ### Running the Application
@@ -71,15 +77,19 @@ A full-stack web application for managing faculty appraisals with automated docu
 #### Option 1: Local Development
 
 **Start Backend (Terminal 1):**
+
 ```bash
 python app.py
 ```
+
 Backend runs on `http://localhost:5000`
 
 **Start Frontend (Terminal 2):**
+
 ```bash
 npm run dev
 ```
+
 Frontend runs on `http://localhost:5173`
 
 #### Option 2: Docker Compose (Recommended)
@@ -94,12 +104,9 @@ docker-compose up --build
 - Backend: `http://localhost:5000`
 
 To stop:
+
 ```bash
 docker-compose down
 ```
 
-
-
 Built with ❤️ using React, TypeScript, Flask, and shadcn/ui
-
-
