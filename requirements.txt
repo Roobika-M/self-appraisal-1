@@ -3,3 +3,6 @@ flask-cors
 pandas
 python-docx
 openpyxl
+reportlab
+docx2pdf
+pywin32

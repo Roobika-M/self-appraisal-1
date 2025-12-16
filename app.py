@@ -8,7 +8,11 @@ import subprocess
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.shared import Pt
 import threading
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from io import BytesIO
 from datetime import datetime
+import platform
 
 app = Flask(__name__, static_folder="build", static_url_path="/")
 # Allow both local development and Docker container access
@@ -136,32 +140,62 @@ def download(file_type):
         return send_file(file_path, as_attachment=True)
     elif file_type == "pdf":
         docx_path = os.path.join(base, "filled_template.docx")
-        pdf_path = os.path.join(base, "filled_template.pdf")
         if not os.path.exists(docx_path):
             return jsonify({"error": "DOCX file not found for conversion"}), 404
-        # Convert DOCX to PDF if PDF doesn't exist or is older than DOCX
+        
         try:
-            if not os.path.exists(pdf_path) or os.path.getmtime(pdf_path) < os.path.getmtime(docx_path):
-                    # Use LibreOffice headless mode to convert DOCX -> PDF inside the container
-                    try:
-                        subprocess.run([
-                            "libreoffice",
-                            "--headless",
-                            "--convert-to",
-                            "pdf",
-                            "--outdir",
-                            base,
-                            docx_path,
-                        ], check=True)
-                    except Exception as e:
-                        print(f"Error converting DOCX to PDF via libreoffice: {e}")
-                        return jsonify({"error": f"PDF conversion failed: {str(e)}"}), 500
+            # Try multiple conversion methods in order of preference
+            output_pdf = os.path.join(base, "filled_template.pdf")
+            
+            # Method 1: Try using LibreOffice (best quality)
+            try:
+                # Detect OS and use appropriate libreoffice command
+                if platform.system() == "Windows":
+                    cmd = ["soffice", "--headless", "--convert-to", "pdf", "--outdir", base, docx_path]
+                else:
+                    cmd = ["libreoffice", "--headless", "--convert-to", "pdf", "--outdir", base, docx_path]
+                
+                result = subprocess.run(cmd, capture_output=True, timeout=60)
+                
+                if os.path.exists(output_pdf):
+                    return send_file(output_pdf, mimetype='application/pdf', as_attachment=True, download_name='filled_template.pdf')
+            except (FileNotFoundError, subprocess.TimeoutExpired, Exception) as e:
+                print(f"LibreOffice conversion failed: {e}")
+            
+            # Method 2: Try using Microsoft Word COM (Windows only) via docx2pdf
+            if platform.system() == "Windows":
+                try:
+                    import win32com.client
+                    word = win32com.client.Dispatch("Word.Application")
+                    word.Visible = False
+                    doc = word.Documents.Open(os.path.abspath(docx_path))
+                    doc.SaveAs(os.path.abspath(output_pdf), FileFormat=17)  # 17 = PDF format
+                    doc.Close()
+                    word.Quit()
+                    if os.path.exists(output_pdf):
+                        return send_file(output_pdf, mimetype='application/pdf', as_attachment=True, download_name='filled_template.pdf')
+                except Exception as e:
+                    print(f"Word COM conversion failed: {e}")
+            
+            # Method 3: Try using convert command line tool
+            try:
+                cmd = ["convert", docx_path, output_pdf]
+                result = subprocess.run(cmd, capture_output=True, timeout=60)
+                if os.path.exists(output_pdf):
+                    return send_file(output_pdf, mimetype='application/pdf', as_attachment=True, download_name='filled_template.pdf')
+            except Exception as e:
+                print(f"Convert command failed: {e}")
+            
+            # Fallback: Return error asking user to install conversion tool
+            error_msg = "PDF conversion requires LibreOffice, Microsoft Word, or ImageMagick to be installed. Please install one of these tools and try again."
+            print(f"ERROR: {error_msg}")
+            return jsonify({"error": error_msg}), 500
+            
         except Exception as e:
             print(f"Error converting DOCX to PDF: {e}")
+            import traceback
+            traceback.print_exc()
             return jsonify({"error": f"PDF conversion failed: {str(e)}"}), 500
-        if not os.path.exists(pdf_path):
-            return jsonify({"error": "PDF file not found after conversion"}), 404
-        return send_file(pdf_path, as_attachment=True)
     elif file_type == "corrective":
         file_path = os.path.join(base, "appfilled_template.docx")
         if not os.path.exists(file_path):
