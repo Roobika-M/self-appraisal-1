@@ -14,7 +14,7 @@ from io import BytesIO
 from datetime import datetime
 import platform
 
-app = Flask(__name__, static_folder="build", static_url_path="/")
+app = Flask(__name__, static_folder="./", static_url_path="/")
 # Allow both local development and Docker container access
 CORS(app, origins=['http://localhost:8080', 'http://127.0.0.1:8080', 'http://frontend:8080'], supports_credentials=True)
 app.secret_key = "your_secret_key"
