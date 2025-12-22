@@ -1,18 +1,5 @@
 [
   {
-    "name": "Ananthi",
-    "designation": "Assistant Professor",
-    "dept": "csbs",
-    "empid": "5",
-    "research": 8,
-    "selfm": 6,
-    "mentor": 0,
-    "academics": 18,
-    "hod": 0,
-    "total_score": 32,
-    "timestamp": "2025-12-16T22:13:27.614209"
-  },
-  {
     "name": "Keren Lois Daniel",
     "designation": "Associate Professor",
     "dept": "csbs",
@@ -50,5 +37,31 @@
     "hod": 0,
     "total_score": 19,
     "timestamp": "2025-12-17T16:28:59.658602"
+  },
+  {
+    "name": "Ananthi",
+    "designation": "Assistant Professor",
+    "dept": "MBA",
+    "empid": "903536",
+    "research": 8,
+    "selfm": 6,
+    "mentor": 0,
+    "academics": 18,
+    "hod": 0,
+    "total_score": 32,
+    "timestamp": "2025-12-22T04:36:29.944988"
+  },
+  {
+    "name": "M. SARAVANAPRIYA",
+    "designation": "Assistant Professor",
+    "dept": "MBA",
+    "empid": "903536",
+    "research": 0,
+    "selfm": 0,
+    "mentor": 0,
+    "academics": 18,
+    "hod": 0,
+    "total_score": 18,
+    "timestamp": "2025-12-22T05:01:53.563214"
   }
 ]

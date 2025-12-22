@@ -58,48 +58,61 @@ const Dashboard = () => {
   const [appraisalHistory, setAppraisalHistory] = useState<FacultyRecord[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const fetchData = async () => {
+  const fetchData = async (): Promise<FacultyRecord[]> => {
     setLoading(true);
     try {
       const res = await fetch('/api/download_path', {
         method: 'GET',
         credentials: 'include',
       });
-      if (res.ok) {
-        const data = await res.json();
-        const mappedData = data.map((item: Record<string, unknown>, index: number) => ({
-          id: (index + 1).toString(),
-          name: item.name || '',
-          employeeId: item.emp_id || '',
-          department: item.department || '',
-          designation: item.designation || '',
-          academicYear: '2024-25',
-          uploadDate: new Date().toLocaleDateString(),
-          status: 'completed',
-          timestamp: item.timestamp || '',
-          scores: {
-            teaching: item.academics || 0,
-            research: item.research || 0,
-            service: item.selfm || 0,
-            mentor: item.mentor || 0,
-            hod: item.hod || 0,
-            overall:
-              (item.academics || 0) +
-              (item.research || 0) +
-              (item.selfm || 0) +
-              (item.mentor || 0) +
-              (item.hod || 0),
-          },
-        }));
-        setAppraisalHistory(mappedData);
-      } else {
+      if (!res.ok) {
         setAppraisalHistory([]);
+        setLoading(false);
+        return [];
       }
-    } catch {
-      // Error fetching data
+      const data = await res.json();
+      const mappedData: FacultyRecord[] = (data as any[]).map((item: any, index: number) => ({
+        id: (index + 1).toString(),
+        name: item.name || '',
+        employeeId: item.emp_id || '',
+        department: item.department || '',
+        designation: item.designation || '',
+        academicYear: '2024-25',
+        uploadDate: new Date().toLocaleDateString(),
+        status: 'completed',
+        timestamp: item.timestamp || '',
+        scores: {
+          teaching: item.academics || 0,
+          research: item.research || 0,
+          service: item.selfm || 0,
+          mentor: item.mentor || 0,
+          hod: item.hod || 0,
+          overall:
+            (item.academics || 0) +
+            (item.research || 0) +
+            (item.selfm || 0) +
+            (item.mentor || 0) +
+            (item.hod || 0),
+        },
+      }));
+      // Sort so most-recent uploads appear first. Try numeric timestamp then Date.parse.
+      const sorted = mappedData.sort((a, b) => {
+        const pa = Number(a.timestamp) || Date.parse(String(a.timestamp)) || 0;
+        const pb = Number(b.timestamp) || Date.parse(String(b.timestamp)) || 0;
+        return pb - pa;
+      });
+      // Recompute ids so they reflect the displayed order (1 = newest)
+      sorted.forEach((rec, idx) => {
+        rec.id = (idx + 1).toString();
+      });
+      setAppraisalHistory(sorted);
+      setLoading(false);
+      return sorted;
+    } catch (err) {
       setAppraisalHistory([]);
+      setLoading(false);
+      return [];
     }
-    setLoading(false);
   };
 
   // Fetch latest scores/details from backend on dashboard load
@@ -172,24 +185,31 @@ const Dashboard = () => {
   };
 
   const handleUploadComplete = async (data: Record<string, unknown>) => {
-    // After upload, fetch scores from backend and show results page
+    // After upload, try to refresh history and navigate to the new results.
     try {
-      const res = await fetch('/api/download_path', {
-        method: 'GET',
-        credentials: 'include',
-      });
-      if (res.ok) {
-        const scores = await res.json();
-        const last = scores.length > 0 ? scores[scores.length - 1] : null;
-        setLatestScores(last);
-        const ts = last?.timestamp || '';
-        navigate(`/dashboard/results/${encodeURIComponent(ts)}`);
+      const serverTs = data?.timestamp ? String(data.timestamp) : undefined;
+      let finalTs: string | undefined = serverTs;
+      if (serverTs) {
+        // Poll a few times for backend processing to make the record available
+        for (let i = 0; i < 6; i++) {
+          const list = await fetchData();
+          if (list.find((r) => String(r.timestamp) === serverTs)) {
+            finalTs = serverTs;
+            break;
+          }
+          // small delay before retry
+          await new Promise((res) => setTimeout(res, 1000));
+        }
       } else {
-        setLatestScores(null);
+        const list = await fetchData();
+        finalTs = list.length > 0 ? list[0].timestamp : undefined;
+      }
+      if (finalTs) {
+        navigate(`/dashboard/results/${encodeURIComponent(finalTs)}`);
+      } else {
         navigate('/dashboard');
       }
-    } catch {
-      setLatestScores(null);
+    } catch (err) {
       navigate('/dashboard');
     }
   };
@@ -368,7 +388,7 @@ const Dashboard = () => {
             ) : (
               <div className="space-y-4">
                 {appraisalHistory.map((record) => (
-                  <div key={record.id} className="border rounded-lg p-4 space-y-3">
+                  <div key={record.timestamp || record.id} className="border rounded-lg p-4 space-y-3">
                     <div className="flex items-start justify-between">
                       <div className="space-y-1">
                         <div className="flex items-center gap-3">

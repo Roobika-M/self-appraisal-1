@@ -98,7 +98,13 @@ const UploadForm = ({ onComplete, onCancel }: UploadFormProps) => {
         credentials: 'include',
       });
       if (res.redirected || res.ok) {
-        onComplete({ ...formData, excelFile: selectedExcelFile, wordFile: selectedWordFile });
+        // Try to read server response (may include timestamp or record id)
+        try {
+          const body = await res.json();
+          onComplete(body as Record<string, unknown>);
+        } catch {
+          onComplete({ ...formData, excelFile: selectedExcelFile, wordFile: selectedWordFile });
+        }
       } else {
         setError('Upload failed. Please check your files and try again.');
       }
