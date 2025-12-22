@@ -1,18 +1,21 @@
-FROM node:18
+FROM node:18 AS builder
+
+ARG VITE_API_URL
+ENV VITE_API_URL=${VITE_API_URL}
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files and install dependencies
 COPY package*.json ./
+RUN npm ci
 
-# Install dependencies
-RUN npm install
-
-# Copy source files
+# Copy source and build
 COPY . .
+RUN npm run build
 
-# Expose Vite dev server port
-EXPOSE 8080
-
-# Run development server with host binding
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+# Production image: serve with nginx
+FROM nginx:stable-alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
