@@ -24,5 +24,31 @@
     "hod": 0,
     "total_score": 43,
     "timestamp": "2025-12-16T22:14:17.179662"
+  },
+  {
+    "name": "Balakrishnan Deivasigamani",
+    "designation": "Assistant Professor",
+    "dept": "MBA",
+    "empid": "903536",
+    "research": 13,
+    "selfm": 0,
+    "mentor": 1,
+    "academics": 18,
+    "hod": 0,
+    "total_score": 32,
+    "timestamp": "2025-12-17T16:27:11.378549"
+  },
+  {
+    "name": "Balakrishnan Deivasigamani",
+    "designation": "Assistant Professor",
+    "dept": "MBA",
+    "empid": "903536",
+    "research": 13,
+    "selfm": 0,
+    "mentor": 1,
+    "academics": 5,
+    "hod": 0,
+    "total_score": 19,
+    "timestamp": "2025-12-17T16:28:59.658602"
   }
 ]
