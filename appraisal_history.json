@@ -40,15 +40,37 @@
   },
   {
     "name": "Ananthi",
+<<<<<<< HEAD
+    "designation": "Professor",
+    "dept": "CSBS",
+    "empid": "1234567",
+=======
     "designation": "Assistant Professor",
     "dept": "MBA",
     "empid": "903536",
+>>>>>>> 965918034fad19fdc2cd0d72504617522cd2f543
     "research": 8,
     "selfm": 6,
     "mentor": 0,
     "academics": 18,
     "hod": 0,
     "total_score": 32,
+<<<<<<< HEAD
+    "timestamp": "2025-12-27T23:26:26.619653"
+  },
+  {
+    "name": "Ananthi",
+    "designation": "Associate Professor",
+    "dept": "CSE",
+    "empid": "1234567",
+    "research": 8,
+    "selfm": 6,
+    "mentor": 0,
+    "academics": 18,
+    "hod": 0,
+    "total_score": 32,
+    "timestamp": "2025-12-29T08:42:22.941265"
+=======
     "timestamp": "2025-12-22T04:36:29.944988"
   },
   {
@@ -63,5 +85,6 @@
     "hod": 0,
     "total_score": 18,
     "timestamp": "2025-12-22T05:01:53.563214"
+>>>>>>> 965918034fad19fdc2cd0d72504617522cd2f543
   }
 ]
