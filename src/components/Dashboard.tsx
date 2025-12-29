@@ -39,6 +39,16 @@ interface FacultyRecord {
   };
 }
 
+interface DisplayScores {
+  name?: string;
+  research?: number;
+  selfm?: number;
+  mentor?: number;
+  academics?: number;
+  hod?: number;
+  [key: string]: unknown;
+}
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -121,10 +131,10 @@ const Dashboard = () => {
   }, []);
 
   // current view is driven by URL (see navigate calls below)
-  const [latestScores, setLatestScores] = useState<Record<string, unknown> | null>(null);
+  const [latestScores, setLatestScores] = useState<DisplayScores | null>(null);
   const params = useParams();
   const resultTimestamp = params?.id;
-  const [displayScores, setDisplayScores] = useState<Record<string, unknown> | null>(null);
+  const [displayScores, setDisplayScores] = useState<DisplayScores | null>(null);
   // determine which scores to show on results page: param -> appraisalHistory -> latestScores -> fetch
   useEffect(() => {
     const findByTimestamp = async (ts: string | undefined) => {
