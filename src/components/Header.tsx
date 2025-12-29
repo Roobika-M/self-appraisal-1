@@ -7,8 +7,14 @@ const Header = ({ onLogout }: { onLogout: () => void }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-foreground rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-foreground rounded-full flex items-center justify-center relative overflow-hidden">
               <GraduationCap className="w-5 h-5 text-background" />
+              <img
+                src="/col-kitelogo-removebg-preview2.jpg"
+                alt="Logo"
+                className="absolute inset-0 m-auto w-6 h-6 object-contain z-10"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+              />
             </div>
             <div>
               <h1 className="text-lg font-semibold text-foreground">Faculty Appraisal System</h1>

@@ -45,8 +45,14 @@ const LoginPage = () => {
         {/* Header */}
         <div className="text-center space-y-2">
           <div className="flex justify-center">
-            <div className="w-16 h-16 bg-foreground rounded-full flex items-center justify-center">
+            <div className="w-16 h-16 bg-foreground rounded-full flex items-center justify-center relative overflow-hidden">
               <GraduationCap className="w-8 h-8 text-background" />
+              <img
+                src="/col-kitelogo-removebg-preview2.jpg"
+                alt="Logo"
+                className="absolute inset-0 m-auto w-10 h-10 object-contain z-10"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+              />
             </div>
           </div>
           <h1 className="text-2xl font-semibold text-foreground">Faculty Appraisal System</h1>
@@ -101,7 +107,8 @@ const LoginPage = () => {
         </Card>
 
         <p className="text-center text-sm text-muted-foreground">
-          © 2025 College Faculty Appraisal System
+          © Powered by IPS Tech Community.
+            {/* © 2025 College Faculty Appraisal */}
         </p>
       </div>
     </div>
