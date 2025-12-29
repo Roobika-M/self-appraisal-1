@@ -50,5 +50,31 @@
     "hod": 0,
     "total_score": 19,
     "timestamp": "2025-12-17T16:28:59.658602"
+  },
+  {
+    "name": "Ananthi",
+    "designation": "Professor",
+    "dept": "CSBS",
+    "empid": "1234567",
+    "research": 8,
+    "selfm": 6,
+    "mentor": 0,
+    "academics": 18,
+    "hod": 0,
+    "total_score": 32,
+    "timestamp": "2025-12-27T23:26:26.619653"
+  },
+  {
+    "name": "Ananthi",
+    "designation": "Associate Professor",
+    "dept": "CSE",
+    "empid": "1234567",
+    "research": 8,
+    "selfm": 6,
+    "mentor": 0,
+    "academics": 18,
+    "hod": 0,
+    "total_score": 32,
+    "timestamp": "2025-12-29T08:42:22.941265"
   }
 ]
