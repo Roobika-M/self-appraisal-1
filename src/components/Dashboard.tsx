@@ -90,19 +90,19 @@ const Dashboard = () => {
         academicYear: '2024-25',
         uploadDate: new Date().toLocaleDateString(),
         status: 'completed',
-        timestamp: item.timestamp || '',
+        timestamp: (item.timestamp as string) || '',
         scores: {
-          teaching: item.academics || 0,
-          research: item.research || 0,
-          service: item.selfm || 0,
-          mentor: item.mentor || 0,
-          hod: item.hod || 0,
+          teaching: (item.academics as number) || 0,
+          research: (item.research as number) || 0,
+          service: (item.selfm as number) || 0,
+          mentor: (item.mentor as number) || 0,
+          hod: (item.hod as number) || 0,
           overall:
-            (item.academics || 0) +
-            (item.research || 0) +
-            (item.selfm || 0) +
-            (item.mentor || 0) +
-            (item.hod || 0),
+            ((item.academics as number) || 0) +
+            ((item.research as number) || 0) +
+            ((item.selfm as number) || 0) +
+            ((item.mentor as number) || 0) +
+            ((item.hod as number) || 0),
         },
       }));
       // Sort so most-recent uploads appear first. Try numeric timestamp then Date.parse.
