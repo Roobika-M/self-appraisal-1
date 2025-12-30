@@ -532,6 +532,11 @@ const Dashboard = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Footer */}
+        <footer className="mt-12 py-6 text-center border-t border-border">
+          <p className="text-sm text-muted-foreground">© Powered by IPS Tech Community.</p>
+        </footer>
       </div>
     </div>
   );

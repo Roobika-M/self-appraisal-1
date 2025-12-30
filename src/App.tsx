@@ -9,6 +9,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
+
 const queryClient = new QueryClient();
 
 const App = () => (

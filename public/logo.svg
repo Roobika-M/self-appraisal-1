@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Faculty Appraisal logo">
+  <rect width="128" height="128" rx="16" fill="#1e293b" />
+  <circle cx="64" cy="40" r="22" fill="#fff" />
+  <path d="M32 88c8-12 24-20 32-20s24 8 32 20v8H32v-8z" fill="#fff"/>
+  <text x="64" y="96" text-anchor="middle" fill="#94a3b8" font-family="Inter, Arial, sans-serif" font-size="14">Faculty Appraisal</text>
+</svg>

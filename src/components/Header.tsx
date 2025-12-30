@@ -1,19 +1,19 @@
 import { Button } from '@/components/ui/button';
 import { GraduationCap, LogOut } from 'lucide-react';
+import Footer from '@/components/Footer';
+
 
 const Header = ({ onLogout }: { onLogout: () => void }) => {
   return (
     <header className="bg-card border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-foreground rounded-full flex items-center justify-center relative overflow-hidden">
-              <GraduationCap className="w-5 h-5 text-background" />
+        <div className="flex justify-between items-center h-20">
+          <div className="flex items-center gap-3 overflow-hidden pt-2">
+            <div className="w-100 h-14 bg-white flex items-center justify-center overflow-hidden">
               <img
-                src="/col-kitelogo-removebg-preview2.jpg"
+                src="/col-kitelogo-removebg-preview2.png"
                 alt="Logo"
-                className="absolute inset-0 m-auto w-6 h-6 object-contain z-10"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                className="w-full h-full object-cover"
               />
             </div>
             <div>

@@ -40,18 +40,16 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 bg-white">
       <div className="w-full max-w-md space-y-8">
         {/* Header */}
         <div className="text-center space-y-2">
           <div className="flex justify-center">
-            <div className="w-16 h-16 bg-foreground rounded-full flex items-center justify-center relative overflow-hidden">
-              <GraduationCap className="w-8 h-8 text-background" />
+            <div className="w-100 bg-white flex items-center justify-center overflow-hidden">
               <img
-                src="/col-kitelogo-removebg-preview2.jpg"
+                src="/col-kitelogo-removebg-preview2.png"
                 alt="Logo"
-                className="absolute inset-0 m-auto w-10 h-10 object-contain z-10"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                className="w-full h-full object-cover"
               />
             </div>
           </div>
