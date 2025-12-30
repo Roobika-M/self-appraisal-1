@@ -81,12 +81,12 @@ const Dashboard = () => {
         return [];
       }
       const data = await res.json();
-      const mappedData: FacultyRecord[] = (data as any[]).map((item: any, index: number) => ({
+      const mappedData: FacultyRecord[] = (data as Array<Record<string, unknown>>).map((item: Record<string, unknown>, index: number) => ({
         id: (index + 1).toString(),
-        name: item.name || '',
-        employeeId: item.emp_id || '',
-        department: item.department || '',
-        designation: item.designation || '',
+        name: (item.name as string) || '',
+        employeeId: (item.emp_id as string) || '',
+        department: (item.department as string) || '',
+        designation: (item.designation as string) || '',
         academicYear: '2024-25',
         uploadDate: new Date().toLocaleDateString(),
         status: 'completed',
